@@ -9,7 +9,7 @@ namespace MediaInput
     public class SundtekGrabber : IGrabber
     {
         //Singleton pattern
-        static private SundtekGrabber _singleton = null;
+        private static SundtekGrabber _singleton = null;
 
         static SundtekGrabber()
         {
