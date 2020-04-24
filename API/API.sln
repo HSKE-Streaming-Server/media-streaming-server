@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "hsk-media-server\API.csproj", "{76E81A4A-A0D3-450E-AC7F-26F32622004B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{774D136D-7851-4135-8B62-97299CBECE05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{76E81A4A-A0D3-450E-AC7F-26F32622004B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76E81A4A-A0D3-450E-AC7F-26F32622004B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76E81A4A-A0D3-450E-AC7F-26F32622004B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76E81A4A-A0D3-450E-AC7F-26F32622004B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{774D136D-7851-4135-8B62-97299CBECE05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{774D136D-7851-4135-8B62-97299CBECE05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{774D136D-7851-4135-8B62-97299CBECE05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{774D136D-7851-4135-8B62-97299CBECE05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {2F955530-0E0E-471B-8D9C-6E85F2C88296}
+		SolutionGuid = {B187A232-5955-4B86-8426-625E8B5B7F37}
 	EndGlobalSection
 EndGlobal
