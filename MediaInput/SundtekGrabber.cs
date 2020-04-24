@@ -1,19 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace MediaInput
 {
+    //TODO: Figure out a mutex scheme together with the keepalive module of the API so we never try to open another tuner stream when we already have one running
     public class SundtekGrabber : IGrabber
     {
         //Singleton pattern
         static private SundtekGrabber _singleton = null;
-        static public SundtekGrabber GetSingleton => new SundtekGrabber();
+
+        static SundtekGrabber()
+        {
+            _singleton = new SundtekGrabber();
+        }
+        public static SundtekGrabber GetSingleton()
+        {
+            //TODO: how do we pass the HTTPClient to this class? 
+            //returns _singleton if its not null, otherwise creates new instance and assigns it to _singleton
+            return _singleton ??= new SundtekGrabber();
+        }
 
         private SundtekGrabber()
         {
             
         }
+        
+        
         public IEnumerable<string> GetAvailableCategories()
         {
             return new[] {"TV", "Radio"};
@@ -21,6 +35,7 @@ namespace MediaInput
 
         public IEnumerable<IEnumerable<ContentInformation>> GetAvailableContentInformation()
         {
+            //TODO: Implement this by getting the playlist files from the sundtek server and "parsing" the .m3u files
             throw new NotImplementedException();
         }
 
