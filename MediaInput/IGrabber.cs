@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -30,7 +29,7 @@ namespace MediaInput
         /// Gets the raw byte <c>Stream</c> for the multimedia content that is identifies by the supplied contentId.
         /// </summary>
         /// <param name="contentId">The unique content identifier.</param>
-        /// <returns>A raw byte <c>Stream</c> that contains the multimedia content as grabbed from the source.</returns>
-        public Stream GetMediaStream(Guid contentId);
+        /// <returns>A raw byte <c>Stream</c> that contains the multimedia content as grabbed from the source and whether or not the stream is a tuner sourced stream.</returns>
+        public Tuple<Stream, bool> GetMediaStream(Guid contentId);
     }
 }
