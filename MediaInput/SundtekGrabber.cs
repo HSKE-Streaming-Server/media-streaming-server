@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 
 namespace MediaInput
@@ -8,6 +11,9 @@ namespace MediaInput
     //TODO: Figure out a mutex scheme together with the keepalive module of the API so we never try to open another tuner stream when we already have one running
     public class SundtekGrabber : IGrabber
     {
+        private IEnumerable<IEnumerable<ContentInformation>> _cachedContentInformation = null;
+        private DateTime _lastCacheTimestamp = DateTime.UnixEpoch;
+
         //Singleton pattern
         private static SundtekGrabber _singleton = null;
 
@@ -15,6 +21,7 @@ namespace MediaInput
         {
             _singleton = new SundtekGrabber();
         }
+
         public static SundtekGrabber GetSingleton()
         {
             //TODO: how do we pass the HTTPClient to this class? 
@@ -24,27 +31,27 @@ namespace MediaInput
 
         private SundtekGrabber()
         {
-            
         }
-        
-        
+
+
         public IEnumerable<string> GetAvailableCategories()
         {
-            return new[] {"TV", "Radio"};
+            return new[] {"television", "radio"};
         }
 
         public IEnumerable<IEnumerable<ContentInformation>> GetAvailableContentInformation()
         {
-            //TODO: Implement this by getting the playlist files from the sundtek server and "parsing" the .m3u files
             throw new NotImplementedException();
         }
 
         public IEnumerable<ContentInformation> GetAvailableContentInformation(string category)
         {
-            throw new NotImplementedException();
+            var allContent = GetAvailableContentInformation();
+            //SelectMany the MetaList where at least one element has category radio
+            return allContent.Where(item => item.Any(item2 => item2.Category == category)).SelectMany(item => item);
         }
 
-        public Stream GetMediaStream(Guid contentId)
+        public Tuple<Stream, bool> GetMediaStream(Guid contentId)
         {
             throw new NotImplementedException();
         }
