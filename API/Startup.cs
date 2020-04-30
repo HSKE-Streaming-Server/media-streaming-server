@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using hsk_media_server.Manager;
+
 namespace API
 {
     public class Startup
@@ -26,6 +28,7 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddTransient<ServerManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

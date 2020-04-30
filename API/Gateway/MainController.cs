@@ -5,41 +5,50 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using hsk_media_server.Model;
+using hsk_media_server.Manager;
 
 namespace hsk_media_server.Controllers
 {
+
     [Route("")]
     [ApiController]
     public class DefaultController : Controller
     {
 
-        [HttpGet("{alias}")]
-        public JsonResult Get(string alias)
-        {
-            //logik -> Klasse
-            JSONstringALSklasse EinObject = new JSONstringALSklasse();
-            EinObject.Name = alias;
-            return Json(EinObject.Name);
-        }
+        private readonly ServerManager _serverManager;
 
+        public DefaultController(ServerManager serverManager){
+            _serverManager = serverManager;
+        }
 
         [HttpPost("authenticate")]
         public JsonResult PostAuthenticate(Account account){
-            //TODO: check Account, create Token
-            return Json("hier dein Token! username: " + account.username + " password: " + account.password);           
+            return Json(_serverManager.authenticate(account));           
         }
 
         [HttpPost("source")]
         public JsonResult PostSource(SourceRequest sourceRequest){
-            //TODO: get sources with same type
-            return Json("sources mit type: " + sourceRequest.type);        
+            //TODO: AccountManager.checkToken(token)
+            return Json(_serverManager.getSources(sourceRequest.type));       
+        }
+
+        [HttpPost("media")]
+        public JsonResult PostMedia(MediaRequest mediaRequest){
+            //TODO: AccountManager.checkToken(token)
+            return Json(_serverManager.getMedia(mediaRequest.source));       
+        }
+
+        [HttpPost("stream")]
+        public JsonResult PostStream(StreamRequest streamRequest){
+            //TODO: AccountManager.checkToken(token)
+            return Json(_serverManager.getStream(streamRequest.streamId));     
         }
 
         [HttpGet("presets")]
         public JsonResult GetPresets()
         {
-            //TODO: get all presets
-            return Json("presets");
+            //TODO: AccountManager.checkToken(token)
+            return Json(_serverManager.getPresets());
         }
 
     }
