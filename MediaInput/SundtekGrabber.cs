@@ -92,7 +92,11 @@ namespace MediaInput
 
         public Tuple<Uri, bool> GetMediaStream(string contentId)
         {
-            throw new NotImplementedException();
+            var content = GetAvailableContentInformation().SelectMany(item => item);
+            var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
+            if(requestedContent==null)
+                throw new Exception("Content with specified contentId does not exist in database");
+            return new Tuple<Uri, bool>(requestedContent.ContentLocation, requestedContent.TunerIsSource);
         }
     }
 }
