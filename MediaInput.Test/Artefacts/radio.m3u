@@ -1,0 +1,235 @@
+#EXTM3U
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=1LIVE",1LIVE
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/1LIVE
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=B5%20aktuell",B5 aktuell
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/B5%20aktuell
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=B5%20plus",B5 plus
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/B5%20plus
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bayern%201",Bayern 1
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bayern%201
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bayern%202",Bayern 2
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bayern%202
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=BAYERN%203",BAYERN 3
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/BAYERN%203
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=BAYERN%20plus",BAYERN plus
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/BAYERN%20plus
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=BR%2DKLASSIK",BR-KLASSIK
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/BR%2DKLASSIK
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=BR%20Heimat",BR Heimat
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/BR%20Heimat
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=hr1",hr1
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/hr1
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=hr2",hr2
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/hr2
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=hr%2DiNFO",hr-iNFO
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/hr%2DiNFO
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=hr3",hr3
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/hr3
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=hr4",hr4
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/hr4
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%203",WDR 3
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%203
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%204",WDR 4
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%204
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%205",WDR 5
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%205
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%20Event",WDR Event
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%20Event
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Antenne%20Brandenburg",Antenne Brandenburg
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Antenne%20Brandenburg
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=1LIVE%20diGGi",1LIVE diGGi
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/1LIVE%20diGGi
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=antenne%20Saar",antenne Saar
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/antenne%20Saar
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bremen%20Zwei",Bremen Zwei
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bremen%20Zwei
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bremen%20Vier",Bremen Vier
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bremen%20Vier
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bremen%20Next",Bremen Next
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bremen%20Next
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Bremen%20Eins",Bremen Eins
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Bremen%20Eins
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=DASDING",DASDING
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/DASDING
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Die%20Maus",Die Maus
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Die%20Maus
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Dlf",Dlf
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Dlf
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Dlf%20Kultur",Dlf Kultur
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Dlf%20Kultur
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Dlf%20Nova",Dlf Nova
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Dlf%20Nova
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Dokumente%20und%20Debatten",Dokumente und Debatten
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Dokumente%20und%20Debatten
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=ERF%20Plus",ERF Plus
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/ERF%20Plus
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=COSMO",COSMO
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/COSMO
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Fritz",Fritz
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Fritz
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=JAM%20FM",JAM FM
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/JAM%20FM
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Inforadio",Inforadio
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Inforadio
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20AKTUELL",MDR AKTUELL
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20AKTUELL
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20JUMP",MDR JUMP
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20JUMP
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20KLASSIK",MDR KLASSIK
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20KLASSIK
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20KULTUR",MDR KULTUR
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20KULTUR
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20S%2DANHALT%20MD",MDR S-ANHALT MD
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20S%2DANHALT%20MD
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20SACHSEN%20DD",MDR SACHSEN DD
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20SACHSEN%20DD
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20SPUTNIK",MDR SPUTNIK
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20SPUTNIK
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MDR%20TH%C3%9CRINGEN%20EF",MDR THÜRINGEN EF
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MDR%20TH%C3%9CRINGEN%20EF
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%20Info%20Spez%2E",NDR Info Spez.
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%20Info%20Spez%2E
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=PULS",PULS
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/PULS
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%20Info%20NDS",NDR Info NDS
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%20Info%20NDS
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%20Blue",NDR Blue
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%20Blue
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%2090%2C3",NDR 90,3
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%2090%2C3
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%202%20NDS",NDR 2 NDS
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%202%20NDS
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%201%20Radio%20MV%20SN",NDR 1 Radio MV SN
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%201%20Radio%20MV%20SN
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%201%20Nieders%2E%20HAN",NDR 1 Nieders. HAN
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%201%20Nieders%2E%20HAN
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=N%2DJOY",N-JOY
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/N%2DJOY
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=MEGA%20Radio",MEGA Radio
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/MEGA%20Radio
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%20Kultur",NDR Kultur
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%20Kultur
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR%20Plus",NDR Plus
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR%20Plus
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=NDR1%20Welle%20Nord%20KI",NDR1 Welle Nord KI
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/NDR1%20Welle%20Nord%20KI
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Radio%20Horeb",Radio Horeb
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Radio%20Horeb
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=Radio%20Paloma",Radio Paloma
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/Radio%20Paloma
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=radioeins",radioeins
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/radioeins
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=rbb%2088%2E8",rbb 88.8
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/rbb%2088%2E8
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=rbbKultur",rbbKultur
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/rbbKultur
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=RTL%20Radio",RTL Radio
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/RTL%20Radio
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SR%203%20Saarlandwelle",SR 3 Saarlandwelle
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SR%203%20Saarlandwelle
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SR%202%20KulturRadio",SR 2 KulturRadio
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SR%202%20KulturRadio
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SR%201%20Europawelle",SR 1 Europawelle
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SR%201%20Europawelle
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=sunshine%20live",sunshine live
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/sunshine%20live
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR%20Aktuell",SWR Aktuell
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR%20Aktuell
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR1%20BW",SWR1 BW
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR1%20BW
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR1%20RP",SWR1 RP
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR1%20RP
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR2",SWR2
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR2
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR3",SWR3
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR3
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR4%20BW",SWR4 BW
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR4%20BW
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=SWR4%20RP",SWR4 RP
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/SWR4%20RP
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%202%20Rheinland",WDR 2 Rheinland
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%202%20Rheinland
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=WDR%202%20Ostwestfalen%2DLippe",WDR 2 Ostwestfalen-Lippe
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/WDR%202%20Ostwestfalen%2DLippe
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=UnserDing",UnserDing
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/UnserDing
+#EXTINF:-1 tvg-logo="http://sundtek.de/picons/?g=YOU%20FM",YOU FM
+#EXTVLCOPT:network-caching=1000
+http://localhost:22000/stream/YOU%20FM

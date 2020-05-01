@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,8 +15,8 @@ namespace MediaInput
         /// <summary>
         /// Gets all the content this <c>IGrabber</c> has access to.
         /// </summary>
-        /// <returns>A two-dimensional list of all the categories and containing content this <c>IGrabber</c> has access to.</returns>
-        public IEnumerable<IEnumerable<ContentInformation>> GetAvailableContentInformation();
+        /// <returns>A dictionary containing the category and a list of content this <c>IGrabber</c> has access to.</returns>
+        public IDictionary<string, IEnumerable<ContentInformation>> GetAvailableContentInformation();
         
         /// <summary>
         /// Gets all the content in a specific category this <c>IGrabber</c> has access to.
@@ -27,10 +26,10 @@ namespace MediaInput
         public IEnumerable<ContentInformation> GetAvailableContentInformation(string category);
         
         /// <summary>
-        /// Gets the raw byte <c>Stream</c> for the multimedia content that is identifies by the supplied contentId.
+        /// Gets the URI where the multimedia content is located that is identifies by the supplied contentId.
         /// </summary>
         /// <param name="contentId">The unique content identifier.</param>
-        /// <returns>A raw byte <c>Stream</c> that contains the multimedia content as grabbed from the source.</returns>
-        public Stream GetMediaStream(Guid contentId);
+        /// <returns>The URI where the multimedia content is located and whether or not the stream is a tuner sourced stream.</returns>
+        public Tuple<Uri, bool> GetMediaStream(string contentId);
     }
 }
