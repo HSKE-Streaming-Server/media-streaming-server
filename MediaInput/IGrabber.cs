@@ -15,8 +15,8 @@ namespace MediaInput
         /// <summary>
         /// Gets all the content this <c>IGrabber</c> has access to.
         /// </summary>
-        /// <returns>A two-dimensional list of all the categories and containing content this <c>IGrabber</c> has access to.</returns>
-        public IEnumerable<IEnumerable<ContentInformation>> GetAvailableContentInformation();
+        /// <returns>A dictionary containing the category and a list of content this <c>IGrabber</c> has access to.</returns>
+        public IDictionary<string, IEnumerable<ContentInformation>> GetAvailableContentInformation();
         
         /// <summary>
         /// Gets all the content in a specific category this <c>IGrabber</c> has access to.

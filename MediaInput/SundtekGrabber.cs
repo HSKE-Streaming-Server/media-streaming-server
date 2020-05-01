@@ -43,56 +43,36 @@ namespace MediaInput
             return new[] {"television", "radio"};
         }
 
-        public IEnumerable<IEnumerable<ContentInformation>> GetAvailableContentInformation()
+        public IDictionary<string, IEnumerable<ContentInformation>> GetAvailableContentInformation()
         {
+            return GetAvailableCategories().ToDictionary(category => category, GetAvailableContentInformation);
+        }
+
+        public IEnumerable<ContentInformation> GetAvailableContentInformation(string category)
+        {
+            
             using (var conn =
                 new MySqlConnection(
                     $"Server={_config["MySqlServerAddress"]};Database={_config["MySqlServerDatabase"]};Uid={_config["MySqlServerUser"]};Pwd={_config["MySqlServerPassword"]};")
             )
             {
+                var selectCommand = new MySqlCommand($"SELECT * FROM sundtekcontent WHERE Category=@category", conn);
+                selectCommand.Parameters.AddWithValue("@category", category);
                 var adapter = new MySqlDataAdapter
-                    {SelectCommand = new MySqlCommand("SELECT * FROM sundtekcontent", conn)};
+                    {SelectCommand = selectCommand};
                 var dataset = new DataSet();
 
                 adapter.Fill(dataset);
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                var radioCollection = new List<ContentInformation>();
-                var tvCollection = new List<ContentInformation>();
-                var fullCollection = new List<List<ContentInformation>>();
-                foreach (DataRow entry in rowCollection)
-                {
-                    var contentObject = new ContentInformation((string) entry[0], (string) entry[1], (string) entry[2],
-                        Convert.ToBoolean(entry[3]),Convert.ToBoolean(entry[4]), new Uri((string) entry[5]), new Uri((string) entry[6]));
-                    switch (contentObject.Category)
-                    {
-                        case "radio":
-                            radioCollection.Add(contentObject);
-                            break;
-                        case "television":
-                            tvCollection.Add(contentObject);
-                            break;
-                        default:
-                            throw new Exception("contentObject has illegal category tag "+contentObject.Category);
-                    }
-                }
-                fullCollection.Add(radioCollection);
-                fullCollection.Add(tvCollection);
-                return fullCollection;
+                return (from DataRow entry in rowCollection select new ContentInformation((string) entry[0], (string) entry[1], (string) entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), new Uri((string) entry[5]), new Uri((string) entry[6]))).ToList();
             }
-        }
-
-        public IEnumerable<ContentInformation> GetAvailableContentInformation(string category)
-        {
-            var allContent = GetAvailableContentInformation();
-            //SelectMany the MetaList where at least one element has category radio
-            return allContent.Where(item => item.Any(item2 => item2.Category == category)).SelectMany(item => item);
         }
 
         public Tuple<Uri, bool> GetMediaStream(string contentId)
         {
-            var content = GetAvailableContentInformation().SelectMany(item => item);
+            var content = GetAvailableContentInformation().Values.SelectMany(item => item);
             var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
             if(requestedContent==null)
                 throw new Exception("Content with specified contentId does not exist in database");

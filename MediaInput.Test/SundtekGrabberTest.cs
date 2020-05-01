@@ -31,10 +31,10 @@ namespace MediaInput.Test
         public void GetAvailableContent()
         {
             var fullContent = _grabber.GetAvailableContentInformation();
-            var enumerable = fullContent as IEnumerable<ContentInformation>[] ?? fullContent.ToArray();
-            Assert.AreEqual(2, enumerable.Length);
-            var radioContent = enumerable.ElementAt(0);
-            var tvContent = enumerable.ElementAt(1);
+            
+            Assert.AreEqual(2, fullContent.Count);
+            var radioContent = fullContent["radio"];
+            var tvContent = fullContent["television"];
             Assert.AreEqual(78, radioContent.Count());
             Assert.AreEqual(96, tvContent.Count());
         }
