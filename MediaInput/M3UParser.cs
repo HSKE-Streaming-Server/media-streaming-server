@@ -19,7 +19,7 @@ namespace MediaInput
         /// <returns>Preview picture URI, channel name and location, in that order.</returns>
         /// <exception cref="Exception"><paramref name="playlist"/> does not contain a proper playlist.</exception>
         /// <exception cref="NullReferenceException"><paramref name="playlist"/> is null.</exception>
-        public static IEnumerable<Tuple<string, string, string>> ParsePlaylist(Stream playlist)
+        public static IEnumerable<(string pictureUri, string channelName, string contentUri)> ParsePlaylist(Stream playlist)
         {
             if(playlist==null)
                 throw new ArgumentNullException(nameof(playlist), "Parameter playlist can't be null");
@@ -49,8 +49,7 @@ namespace MediaInput
                     IEnumerable<int> apposPos = splitMetadata[0].AllIndicesOf("\"");
                     var enumerable = apposPos as int[] ?? (apposPos ?? throw new Exception("Playlist didn't contain a link to a preview picture.")).ToArray();
                     //splitMetadata[2] should just be the channel name in clear
-                    yield return new Tuple<string, string, string>(splitMetadata[0].Substring(enumerable[0]+1, enumerable[1]-enumerable[0]-1),
-                        splitMetadata[1], link);
+                    yield return (splitMetadata[0].Substring(enumerable[0] + 1, enumerable[1] - enumerable[0] - 1), splitMetadata[1], link);
                 }
                 else
                 {

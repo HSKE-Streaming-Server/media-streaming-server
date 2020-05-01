@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput", "MediaInput\Me
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{8AD8955E-A2FA-4180-94B7-53409C27E4D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

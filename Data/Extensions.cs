@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Data
 {
@@ -20,7 +22,7 @@ namespace Data
             }
 
             //iterator based return (to save the need for a List allocation)
-            for (int index = 0;; index += 1)
+            for (var index = 0;; index += 1)
             {
                 index = str.IndexOf(value, index, StringComparison.Ordinal);
                 if (index == -1)
@@ -28,5 +30,15 @@ namespace Data
                 yield return index;
             }
         }
+        
+        public static string GetSha1HashAsHexString(this string input)
+        {
+            var hashProvider = new SHA1CryptoServiceProvider();
+            var inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashedBytes = hashProvider.ComputeHash(inputBytes);
+            return BitConverter.ToString(hashedBytes).Replace("-", string.Empty);
+        }
     }
+    
+    
 }

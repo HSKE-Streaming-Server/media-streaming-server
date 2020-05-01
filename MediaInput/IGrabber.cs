@@ -26,10 +26,10 @@ namespace MediaInput
         public IEnumerable<ContentInformation> GetAvailableContentInformation(string category);
         
         /// <summary>
-        /// Gets the raw byte <c>Stream</c> for the multimedia content that is identifies by the supplied contentId.
+        /// Gets the URI where the multimedia content is located that is identifies by the supplied contentId.
         /// </summary>
         /// <param name="contentId">The unique content identifier.</param>
-        /// <returns>A raw byte <c>Stream</c> that contains the multimedia content as grabbed from the source and whether or not the stream is a tuner sourced stream.</returns>
-        public Tuple<Stream, bool> GetMediaStream(Guid contentId);
+        /// <returns>The URI where the multimedia content is located and whether or not the stream is a tuner sourced stream.</returns>
+        public Tuple<Uri, bool> GetMediaStream(string contentId);
     }
 }

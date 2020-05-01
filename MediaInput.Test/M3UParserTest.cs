@@ -3,7 +3,7 @@ using System.Linq;
 using MediaInput;
 using NUnit.Framework;
 
-namespace Test
+namespace MediaInput.Test
 {
     public class M3UParserTest
     {
@@ -25,15 +25,16 @@ namespace Test
             
             var firstElement = enumerable.ElementAt(0);
 
-            Assert.AreEqual("http://sundtek.de/picons/?g=1LIVE", firstElement?.Item1);
-            Assert.AreEqual("1LIVE", firstElement?.Item2);
-            Assert.AreEqual("http://localhost:22000/stream/1LIVE", firstElement?.Item3);
+            Assert.AreEqual("http://sundtek.de/picons/?g=1LIVE", firstElement.Item1);
+            Assert.AreEqual("1LIVE", firstElement.Item2);
+            Assert.AreEqual("http://localhost:22000/stream/1LIVE", firstElement.Item3);
 
             var secondElement = enumerable.ElementAt(1);
             
-            Assert.AreEqual("http://sundtek.de/picons/?g=B5%20aktuell", secondElement?.Item1);
-            Assert.AreEqual("B5 aktuell", secondElement?.Item2);
-            Assert.AreEqual("http://localhost:22000/stream/B5%20aktuell", secondElement?.Item3);
+            Assert.AreEqual("http://sundtek.de/picons/?g=B5%20aktuell", secondElement.Item1);
+            Assert.AreEqual("B5 aktuell", secondElement.Item2);
+            Assert.AreEqual("http://localhost:22000/stream/B5%20aktuell", secondElement.Item3);
         }
+        //TODO: write same test for television playlists
     }
 }
