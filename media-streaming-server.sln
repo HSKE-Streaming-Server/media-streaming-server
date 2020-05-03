@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput", "MediaInput\Me
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{8AD8955E-A2FA-4180-94B7-53409C27E4D3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{8AD8955E-A2FA-4180-94B7-53409C27E4D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AD8955E-A2FA-4180-94B7-53409C27E4D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AD8955E-A2FA-4180-94B7-53409C27E4D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D58DBFEE-5375-4CEB-9A13-CA2BDB877D6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{657D99E9-2038-446D-B054-31C4C90487B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{657D99E9-2038-446D-B054-31C4C90487B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{657D99E9-2038-446D-B054-31C4C90487B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{657D99E9-2038-446D-B054-31C4C90487B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
