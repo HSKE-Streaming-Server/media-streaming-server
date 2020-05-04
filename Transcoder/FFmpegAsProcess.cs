@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration; //for IConfiguration
+using System;
 using System.Diagnostics; //for Process
 using System.IO; //for StreamReader
 
@@ -9,13 +10,14 @@ namespace Transcoder
         //TODO - Für transcodierte Videos Datenbankeinträge setzen (Referenz)
         //TODO - Videos auf dem Server löschen (nach 3 Tagen) sonst läufts voll
         //TODO - presets übergeben
-
-        public FFmpegAsProcess()
+        private static FFmpegAsProcess _singleton = null;
+        private IConfiguration Config { get; }
+        private FFmpegAsProcess()
         {
             //Presets
-        }
 
-        private static FFmpegAsProcess _singleton = null;
+            this.Config = new ConfigurationBuilder().AddJsonFile("TrancodedUriLocationConfig.json", false, true).Build();
+        }
 
         static FFmpegAsProcess()
         {

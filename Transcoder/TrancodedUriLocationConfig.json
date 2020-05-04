@@ -1,0 +1,7 @@
+﻿{
+  "MySqlServerAddress": "localhost",
+  "MySqlServerDatabase": "mediaserver",
+  "MySqlServerTableName": "",
+  "MySqlServerUser": "root",
+  "MySqlServerPassword": "root"
+}
