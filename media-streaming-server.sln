@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transcoder", "Transcoder\Transcoder.csproj", "{06A2027C-6192-4E8F-B476-3041905223F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{657D99E9-2038-446D-B054-31C4C90487B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{657D99E9-2038-446D-B054-31C4C90487B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{657D99E9-2038-446D-B054-31C4C90487B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06A2027C-6192-4E8F-B476-3041905223F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06A2027C-6192-4E8F-B476-3041905223F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06A2027C-6192-4E8F-B476-3041905223F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06A2027C-6192-4E8F-B476-3041905223F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
