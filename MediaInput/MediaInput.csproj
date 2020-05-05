@@ -36,7 +36,7 @@
         <Generator>MSDataSetGenerator</Generator>
         <LastGenOutput>mediaserverDataSet.Designer.cs</LastGenOutput>
       </None>
-      <None Update="SundtekConfig.json">
+      <None Update="GrabberConfig.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
