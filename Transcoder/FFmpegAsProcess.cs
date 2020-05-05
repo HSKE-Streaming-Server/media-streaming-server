@@ -2,6 +2,8 @@
 using System;
 using System.Diagnostics; //for Process
 using System.IO; //for StreamReader
+using System.Reflection.PortableExecutable;
+using System.Threading;
 
 namespace Transcoder
 {
@@ -29,7 +31,7 @@ namespace Transcoder
             return _singleton ??= new FFmpegAsProcess();
         }
 
-        //TODO - besseren Namen vergeben (mit Felix abklären); Transcode 
+        //TODO - besseren Namen vergeben (mit Felix abklären); -> Transcode 
         public string startProcess(Uri uri)
         {
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
@@ -52,6 +54,16 @@ namespace Transcoder
         private void ProcessFFmpeg(string parameter)
         {
             //TODO - Threads (Nuget Zeitstempel)
+            Threader obj = new Threader();
+            Thread th = new Thread(obj.doSomething);
+            th.Start();
+            Console.WriteLine("Press any key to kill threads!");
+            Console.ReadKey();
+            obj.kill();
+            th.Join();
+            Console.WriteLine();
+            Console.ReadKey();
+
             Process proc = new Process();
             proc.StartInfo.FileName = "ffmpeg";
             proc.StartInfo.Arguments = parameter;
@@ -79,6 +91,22 @@ namespace Transcoder
                 Console.WriteLine(OutputProgress);
             }
             proc.Close();
+        }
+        public class Threader
+        {
+            bool condition = false;
+            public void doSomething()
+            {
+                while (!condition)
+                {
+                    Console.WriteLine("Thread is working!");
+                    Thread.Sleep(1000);
+                }
+            }
+            public void kill()
+            {
+                condition = true;
+            }
         }
     }
 }
