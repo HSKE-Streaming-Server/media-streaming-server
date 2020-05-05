@@ -22,7 +22,9 @@ namespace MediaInput.Test
         {
             var categories = _grabber.GetAvailableCategories();
             var enumerable = categories as string[] ?? categories.ToArray();
+            //Exactly three distinc categories
             Assert.AreEqual(3, enumerable.Length);
+            //All three distinct categories present
             Assert.IsTrue(enumerable.Contains("ard"));
             Assert.IsTrue(enumerable.Contains("zdf"));
             Assert.IsTrue(enumerable.Contains("arte"));
@@ -33,7 +35,10 @@ namespace MediaInput.Test
         {
             var fullContent = _grabber.GetAvailableContentInformation();
 
+            //Content for all three categories present
             Assert.AreEqual(3, fullContent.Count);
+
+            //Check content count per category
             var ardContent = fullContent["ard"];
             var zdfContent = fullContent["zdf"];
             var arteContent = fullContent["arte"];
@@ -45,6 +50,7 @@ namespace MediaInput.Test
         [Test]
         public void GetAvailableContentWithCategoriesCorrect()
         {
+            //Check content count per category
             var zdfContent = _grabber.GetAvailableContentInformation("zdf");
             var ardContent = _grabber.GetAvailableContentInformation("ard");
             var arteContent = _grabber.GetAvailableContentInformation("arte");
