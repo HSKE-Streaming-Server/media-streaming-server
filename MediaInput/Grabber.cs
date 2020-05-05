@@ -21,6 +21,10 @@ namespace MediaInput
         private Grabber()
         {
             Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
+            SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
+                $"Database={Config["MySqlServerDatabase"]};" +
+                $"Uid={Config["MySqlServerUser"]};" +
+                $"Pwd={Config["MySqlServerPassword"]};";
         }
 
         static Grabber()
@@ -37,16 +41,13 @@ namespace MediaInput
 
         private IConfiguration Config { get; }
 
+        private string SqlConnectionString { get; }
+
         private static Grabber _singleton { get; set; } = null;
 
         public IEnumerable<string> GetAvailableCategories()
         {
-            using (var dbConnection = new MySqlConnection(
-                $"Server={Config["MySqlServerAddress"]};" +
-                $"Database={Config["MySqlServerDatabase"]};" +
-                $"Uid={Config["MySqlServerUser"]};" +
-                $"Pwd={Config["MySqlServerPassword"]};")
-                )
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
                 var selectCommand = new MySqlCommand($"SELECT DISTINCT Category FROM mediacontent", dbConnection);
                 var adapter = new MySqlDataAdapter
@@ -70,24 +71,19 @@ namespace MediaInput
         public IEnumerable<ContentInformation> GetAvailableContentInformation(string category)
         {
 
-            using (var dbConnection = new MySqlConnection(
-                $"Server={Config["MySqlServerAddress"]};" +
-                $"Database={Config["MySqlServerDatabase"]};" +
-                $"Uid={Config["MySqlServerUser"]};" +
-                $"Pwd={Config["MySqlServerPassword"]};")
-                )
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
                 var selectCommand = new MySqlCommand($"SELECT * FROM mediacontent WHERE Category=@category", dbConnection);
                 selectCommand.Parameters.AddWithValue("@category", category);
                 var adapter = new MySqlDataAdapter
-                    {SelectCommand = selectCommand};
+                { SelectCommand = selectCommand };
                 var dataset = new DataSet();
 
                 adapter.Fill(dataset);
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                return (from DataRow entry in rowCollection select new ContentInformation((string) entry[0], (string) entry[1], (string) entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), new Uri((string) entry[5]), new Uri((string) entry[6]))).ToList();
+                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), new Uri((string)entry[5]), new Uri((string)entry[6]))).ToList();
             }
         }
 
