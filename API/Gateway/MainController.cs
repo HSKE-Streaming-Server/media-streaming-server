@@ -17,31 +17,36 @@ namespace hsk_media_server.Controllers
 
         private readonly ServerManager _serverManager;
 
-        public DefaultController(ServerManager serverManager){
+        public DefaultController(ServerManager serverManager)
+        {
             _serverManager = serverManager;
         }
 
         [HttpPost("authenticate")]
-        public JsonResult PostAuthenticate(Account account){
-            return Json(_serverManager.authenticate(account));           
+        public JsonResult PostAuthenticate(Account account)
+        {
+            return Json(_serverManager.authenticate(account));
         }
 
         [HttpPost("source")]
-        public JsonResult PostSource(SourceRequest sourceRequest){
+        public JsonResult PostSource(SourceRequest sourceRequest)
+        {
             //TODO: AccountManager.checkToken(token)
-            return Json(_serverManager.getSources(sourceRequest.type));       
+            return Json(_serverManager.getSources(sourceRequest.type));
         }
 
         [HttpPost("media")]
-        public JsonResult PostMedia(MediaRequest mediaRequest){
+        public JsonResult PostMedia(MediaRequest mediaRequest)
+        {
             //TODO: AccountManager.checkToken(token)
-            return Json(_serverManager.getMedia(mediaRequest.source));       
+            return Json(_serverManager.getMedia(mediaRequest.source));
         }
 
         [HttpPost("stream")]
-        public JsonResult PostStream(StreamRequest streamRequest){
+        public JsonResult PostStream(StreamRequest streamRequest)
+        {
             //TODO: AccountManager.checkToken(token)
-            return Json(_serverManager.getStream(streamRequest.streamId));     
+            return Json(_serverManager.getStream(streamRequest.streamId));
         }
 
         [HttpGet("presets")]
