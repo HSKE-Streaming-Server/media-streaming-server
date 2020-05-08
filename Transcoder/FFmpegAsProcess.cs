@@ -71,7 +71,7 @@ namespace Transcoder
 
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
-            var folderName = timestamp.ToString("yyyy-MM-dd-HH:mm:ss");
+            var folderName = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
             var folderPath = Path.Combine(_webroot, folderName);
             var selectedVideoPreset = _videoPresets[videoPreset];
             var selectedAudioPreset = _audioPresets[audioPreset];
@@ -79,7 +79,7 @@ namespace Transcoder
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
 
             ProcessFFmpeg(
-                $"ffmpeg -i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd",
+                $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd",
                 folderPath);
 
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
@@ -108,7 +108,7 @@ namespace Transcoder
         private Task ProcessFFmpeg(string parameter, string path)
         {
             //TODO - Threads (Nuget Zeitstempel)
-            
+
             Directory.CreateDirectory(path);
             Process ffmpegProcess = new Process
             {
@@ -118,37 +118,40 @@ namespace Transcoder
                     Arguments = parameter,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    WorkingDirectory = _config[path]
+                    WorkingDirectory = path
                 }
             };
             //With StandardError I get both normal output and errors (Because of "Error" in the name, it's probably confusing)
             //It's actually that what we see in the command prompt after we hit enter
             //Determined where the process is starting
-            
-            
+
+
             Task loggingTask = new Task(() =>
             {
                 var logfile = new StreamWriter(File.OpenWrite(path + "/transcoder.log"));
-                
+
                 StreamReader reader = ffmpegProcess.StandardError;
 
+                logfile.WriteLine($"STARTING LOG AT {DateTime.Now:g}");
+                logfile.WriteLine($"INVOKING FFMPEG WITH PARAMETERS: {parameter}");
                 while (!reader.EndOfStream)
                 {
-                    if (reader.Peek() != -1)
+                    while (reader.Peek() != -1)
                         logfile.WriteLine(reader.ReadLine());
+                    logfile.Flush();
                     Thread.Sleep(250);
 
-                    if (!ffmpegProcess.HasExited) continue;
+                    if (!ffmpegProcess.HasExited||!reader.EndOfStream) continue;
                     logfile.WriteLine("Process exited with code: " + ffmpegProcess.ExitCode);
                     ffmpegProcess.Dispose();
                     break;
                 }
-
+                logfile.Flush();
+                logfile.Dispose();
                 ffmpegProcess.Close();
             });
 
-            
-            
+
             try
             {
                 if (!ffmpegProcess.Start())
@@ -163,7 +166,7 @@ namespace Transcoder
             }
 
             loggingTask.Start();
-            
+
             return loggingTask;
         }
     }

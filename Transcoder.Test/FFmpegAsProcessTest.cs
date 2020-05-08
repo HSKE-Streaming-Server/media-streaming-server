@@ -36,7 +36,7 @@ namespace Transcoder.Test
             var returnval =
                 _ffmpeg.StartProcess(
                     new Uri(
-                        "http://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8"),
+                        "http://localhost:22000/stream/ARD%2Dalpha"),
                     1, 1);
             Thread.Sleep(60000);
         }
