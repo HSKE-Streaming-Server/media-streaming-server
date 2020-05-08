@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using hsk_media_server.Model;
+using MediaInput;
+using Transcoder;
 
 namespace hsk_media_server.Manager
 {
     public class ServerManager
     {
+        private Grabber grabber = Grabber.GetSingleton();
+        private FFmpegAsProcess transcoder = FFmpegAsProcess.GetSingleton();
 
         public String authenticate(Account account)
         {
@@ -15,23 +19,21 @@ namespace hsk_media_server.Manager
             return "login response message";
         }
 
-        public String getSources(String type)
+        public IEnumerable<String> getSources(String type)
         {
-            //TODO: MediaInput -> GetAvailableCategories();
-            return "source response message";
+            return grabber.GetAvailableCategories();
         }
 
-        public String getMedia(String source)
+        public IEnumerable<ContentInformation> getMedia(String source)
         {
-            //TODO: MediaInput -> GetAvailableContentInformation(category)
-            return "media response message";
+            return grabber.GetAvailableContentInformation(source);
         }
 
-        public String getStream(String streamId)
+        public Tuple<Uri, bool> getStream(String streamId)
         {
-            //TODO: - MediaInput -> getMediaStream(contentId)
-            //      - Transcoder -> transcode(Stream, preset)
-            return "stream response message";
+            Tuple<Uri, bool> streamResponse = grabber.GetMediaStream(streamId);
+            String ourUri = transcoder.StartProcess(streamResponse.Item1, 1, 1);
+            return new Tuple<Uri, bool>(new Uri(ourUri), streamResponse.Item2);
         }
 
         public String getPresets()
