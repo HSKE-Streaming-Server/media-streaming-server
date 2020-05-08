@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration; //for IConfiguration
+using Newtonsoft.Json; //for JsonConvert
 using System;
 using System.Collections.Generic;
 using System.Diagnostics; //for Process
 using System.IO; //for StreamReader
 using System.Reflection.PortableExecutable;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Threading; //for Thread
+using System.Threading.Tasks; //for Task
 
 namespace Transcoder
 {
@@ -36,16 +37,38 @@ namespace Transcoder
             return _singleton ??= new FFmpegAsProcess();
         }
 
-        //TODO - besseren Namen vergeben (mit Felix abklären); -> Transcode 
         public string StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
+            //they are different Inputs -> uri
+
+
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
             var folderName = timestamp.ToString("yyyy-MM-dd-HH:mm:ss");
             var folderPath = Path.Combine(_webroot, folderName);
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
+            if (uri.ToString().Contains(".avi"))
+            {
+                //Audio
+                ProcessFFmpeg($"ffmpeg -y -i \"{uri}\" -c:a aac -b:a 192k -vn {folderPath}/output_audio.m4a", folderPath);
+                //Video
+                ProcessFFmpeg($"ffmpeg -y -i \"{uri}\" -preset slow -tune film -vsync passthrough -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 22  -maxrate 300k -bufsize 600k -pix_fmt yuv420p -f mp4 {folderPath}/output_300.mp4", folderPath);
+                //.m3u8
+                ProcessFFmpeg($"ffmpeg -i \"{folderPath}/output_300.mp4\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f dash {folderPath}/240_out.m3u8", folderPath);
+            }
+            else (uri.ToString().Contains(".m3u8"))
+            {
+                ProcessFFmpeg($"ffmpeg -i \"{uri}\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f dash {folderPath}/240_out.m3u8", folderPath);
+            }
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
-            ProcessFFmpeg($"ffmpeg -i \"{uri}\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 {folderPath}/240_out.m3u8", folderPath);
+
+            //Write into a .json
+            VideoPreset videoPreset2 = new VideoPreset(2, "test", "240x240", "128kbps", "gemachtelfing");
+            string writeToJson = JsonConvert.SerializeObject(videoPreset2);
+            File.WriteAllText(@"TranscoderConfig.json", writeToJson);
+
+            //Accesing a .json
+            //_config[] ...
 
 
             //TODO - IConfiguration; config -> Kontruktor (auslesen im startProcess)
@@ -53,14 +76,13 @@ namespace Transcoder
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
             string uriForApiManager = Path.Combine(folderPath, "240_out.m3u8");
             return uriForApiManager;
-            //return uri.ToString();
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()
         {
             return new List<VideoPreset>
             {
-                new VideoPreset(1, "test", "240x240", "128kbps", "gemachtelfing")
+                new VideoPreset(1, "test", "240x240", "128kbps", "gemachtelfing"),
             };
         }
 
@@ -109,15 +131,15 @@ namespace Transcoder
                 Console.WriteLine("Process didn't started!\n\n" +
                                   ex.GetType() + ": " + ex.Message);
             }
-            
+
             Task task = new Task(() =>
             {
                 var logfile = new StreamWriter(File.OpenWrite(path + "/transcoder.log"));
                 StreamReader reader = proc.StandardError;
-                
+
                 while (!reader.EndOfStream)
                 {
-                    if(reader.Peek()!=-1)
+                    if (reader.Peek() != -1)
                         logfile.WriteLine(reader.ReadLine());
                     Thread.Sleep(250);
                 }
@@ -127,6 +149,6 @@ namespace Transcoder
             task.Start();
             return task;
         }
-        
+
     }
 }

@@ -1,3 +1,30 @@
 ﻿{
-  "ApacheWebroot": "C:/xampp/htdocs"
+  "ApacheWebroot": "C:/xampp/htdocs",
+
+  "AudioPresets":
+  [
+    {
+      "Low": [ "1", "Low Quality", "32k", "ultrafast" ]
+    },
+    {
+      "Medium": [ "2", "Medium Quality", "64k", "medium" ]
+    },
+    {
+      "High": [ "3", "High Quality", "128k", "slow" ]
+    }
+  ],
+
+  "VideoPreset": 
+  [
+    {
+      "Low": [ "1", "Low Quality", "240x240", "300k", "ultrafast" ]
+    },
+    {
+      "Medium": [ "2", "Medium Quality", "240x240", "500k", "medium" ]
+    },
+    {
+      "High": [ "3", "High Quality", "240x240", "800k", "slow" ]
+    }
+  ]
+}
 }
