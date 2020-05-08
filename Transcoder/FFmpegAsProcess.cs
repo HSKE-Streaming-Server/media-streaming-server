@@ -3,7 +3,8 @@ using Newtonsoft.Json; //for JsonConvert
 using System;
 using System.Collections.Generic;
 using System.Diagnostics; //for Process
-using System.IO; //for StreamReader
+using System.IO;
+using System.Linq; //for StreamReader
 using System.Reflection.PortableExecutable;
 using System.Threading; //for Thread
 using System.Threading.Tasks; //for Task
@@ -16,8 +17,13 @@ namespace Transcoder
         //TODO - Videos auf dem Server löschen (nach 3 Tagen) sonst läufts voll
         //TODO - presets übergeben
         private static FFmpegAsProcess _singleton;
+
+
+        private Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
+        private Dictionary<int, VideoPreset> _videoPresets = new Dictionary<int, VideoPreset>();
         private IConfiguration _config;
         private string _webroot;
+
         private FFmpegAsProcess()
         {
             //Read config file
@@ -25,6 +31,23 @@ namespace Transcoder
             _webroot = Path.Combine(_config["ApacheWebroot"], "transcoded");
             //Presets
 
+            var audioPresets = _config.GetChildren().First(item => item.Key == "AudioPresets").GetChildren();
+            var videoPresets = _config.GetChildren().First(item => item.Key == "VideoPresets").GetChildren();
+
+            //parse the audio presets from the config file
+            foreach (var preset in audioPresets)
+            {
+                var values = preset.GetChildren().ToDictionary(item => item.Key, item => item.Value);
+                _audioPresets.Add(int.Parse(values["Id"]), new AudioPreset(int.Parse(values["Id"]), values["Name"],
+                    values["Description"], values["Bitrate"], values["TranscoderArguments"]));
+            }
+
+            foreach (var preset in videoPresets)
+            {
+                var values = preset.GetChildren().ToDictionary(item => item.Key, item => item.Value);
+                _videoPresets.Add(int.Parse(values["Id"]), new VideoPreset(int.Parse(values["Id"]), values["Name"],
+                    values["Description"], values["Resolution"], values["Bitrate"], values["TranscoderArguments"]));
+            }
         }
 
         static FFmpegAsProcess()
@@ -39,59 +62,41 @@ namespace Transcoder
 
         public string StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
-            //they are different Inputs -> uri
-
+            if (!_videoPresets.ContainsKey(videoPreset))
+                throw new ArgumentException("The specified video preset doesn't exist.");
+            if (!_audioPresets.ContainsKey(audioPreset))
+                throw new ArgumentException("The specified audio preset doesn't exist.");
+            if (uri == null || string.IsNullOrEmpty(uri.ToString()))
+                throw new ArgumentNullException(nameof(uri), "Uri cannot be null or empty.");
 
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
             var folderName = timestamp.ToString("yyyy-MM-dd-HH:mm:ss");
             var folderPath = Path.Combine(_webroot, folderName);
+            var selectedVideoPreset = _videoPresets[videoPreset];
+            var selectedAudioPreset = _audioPresets[audioPreset];
+
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
-            if (uri.ToString().Contains(".avi"))
-            {
-                //Audio
-                ProcessFFmpeg($"ffmpeg -y -i \"{uri}\" -c:a aac -b:a 192k -vn {folderPath}/output_audio.m4a", folderPath);
-                //Video
-                ProcessFFmpeg($"ffmpeg -y -i \"{uri}\" -preset slow -tune film -vsync passthrough -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 22  -maxrate 300k -bufsize 600k -pix_fmt yuv420p -f mp4 {folderPath}/output_300.mp4", folderPath);
-                //.m3u8
-                ProcessFFmpeg($"ffmpeg -i \"{folderPath}/output_300.mp4\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f dash {folderPath}/240_out.m3u8", folderPath);
-            }
-            else (uri.ToString().Contains(".m3u8"))
-            {
-                ProcessFFmpeg($"ffmpeg -i \"{uri}\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f dash {folderPath}/240_out.m3u8", folderPath);
-            }
+
+            ProcessFFmpeg(
+                $"ffmpeg -i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd",
+                folderPath);
+
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
 
-            //Write into a .json
-            VideoPreset videoPreset2 = new VideoPreset(2, "test", "240x240", "128kbps", "gemachtelfing");
-            string writeToJson = JsonConvert.SerializeObject(videoPreset2);
-            File.WriteAllText(@"TranscoderConfig.json", writeToJson);
-
-            //Accesing a .json
-            //_config[] ...
-
-
-            //TODO - IConfiguration; config -> Kontruktor (auslesen im startProcess)
 
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
-            string uriForApiManager = Path.Combine(folderPath, "240_out.m3u8");
-            return uriForApiManager;
+            return Path.Combine(_webroot, folderName, "out.mpd");
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()
         {
-            return new List<VideoPreset>
-            {
-                new VideoPreset(1, "test", "240x240", "128kbps", "gemachtelfing"),
-            };
+            return _videoPresets.Select(item => item.Value);
         }
 
         public IEnumerable<AudioPreset> GetAvailableAudioPresets()
         {
-            return new List<AudioPreset>
-            {
-                new AudioPreset(1, "test", "32kbit/s", "samuchtafeng")
-            };
+            return _audioPresets.Select(item => item.Value);
         }
 
 
@@ -103,8 +108,9 @@ namespace Transcoder
         private Task ProcessFFmpeg(string parameter, string path)
         {
             //TODO - Threads (Nuget Zeitstempel)
-
-            Process proc = new Process
+            
+            Directory.CreateDirectory(path);
+            Process ffmpegProcess = new Process
             {
                 StartInfo =
                 {
@@ -112,16 +118,40 @@ namespace Transcoder
                     Arguments = parameter,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    WorkingDirectory = Path.Combine(@"C:\xampp\", "htdocs")
+                    WorkingDirectory = _config[path]
                 }
             };
             //With StandardError I get both normal output and errors (Because of "Error" in the name, it's probably confusing)
             //It's actually that what we see in the command prompt after we hit enter
             //Determined where the process is starting
+            
+            
+            Task loggingTask = new Task(() =>
+            {
+                var logfile = new StreamWriter(File.OpenWrite(path + "/transcoder.log"));
+                
+                StreamReader reader = ffmpegProcess.StandardError;
 
+                while (!reader.EndOfStream)
+                {
+                    if (reader.Peek() != -1)
+                        logfile.WriteLine(reader.ReadLine());
+                    Thread.Sleep(250);
+
+                    if (!ffmpegProcess.HasExited) continue;
+                    logfile.WriteLine("Process exited with code: " + ffmpegProcess.ExitCode);
+                    ffmpegProcess.Dispose();
+                    break;
+                }
+
+                ffmpegProcess.Close();
+            });
+
+            
+            
             try
             {
-                if (!proc.Start())
+                if (!ffmpegProcess.Start())
                 {
                     throw new Exception("Process.Start() returned false.");
                 }
@@ -132,23 +162,9 @@ namespace Transcoder
                                   ex.GetType() + ": " + ex.Message);
             }
 
-            Task task = new Task(() =>
-            {
-                var logfile = new StreamWriter(File.OpenWrite(path + "/transcoder.log"));
-                StreamReader reader = proc.StandardError;
-
-                while (!reader.EndOfStream)
-                {
-                    if (reader.Peek() != -1)
-                        logfile.WriteLine(reader.ReadLine());
-                    Thread.Sleep(250);
-                }
-                proc.Close();
-            });
-
-            task.Start();
-            return task;
+            loggingTask.Start();
+            
+            return loggingTask;
         }
-
     }
 }
