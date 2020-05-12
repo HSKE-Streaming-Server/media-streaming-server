@@ -1,6 +1,6 @@
 namespace Transcoder
 {
-    public class AudioPreset
+    public class AudioPreset : Preset
     {
         internal AudioPreset(int id, string name, string description, string bitrate, string transcoderArguments)
         {
@@ -10,11 +10,5 @@ namespace Transcoder
             Bitrate = bitrate;
             TranscoderArguments = transcoderArguments;
         }
-        
-        public readonly int Id;
-        public readonly string Name;
-        public readonly string Description;
-        public readonly string Bitrate;
-        internal readonly string TranscoderArguments;
     }
 }

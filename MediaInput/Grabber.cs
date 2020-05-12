@@ -45,6 +45,10 @@ namespace MediaInput
 
         private static Grabber _singleton { get; set; } = null;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetAvailableCategories()
         {
             using (var dbConnection = new MySqlConnection(SqlConnectionString))

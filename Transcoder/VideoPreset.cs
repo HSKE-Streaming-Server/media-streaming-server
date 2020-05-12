@@ -1,7 +1,9 @@
 namespace Transcoder
 {
-    public class VideoPreset
+    public class VideoPreset : Preset
     {
+        public readonly string Resolution;
+        
         internal VideoPreset(int id, string name, string description, string resolution, string bitrate,
             string transcoderArguments)
         {
@@ -12,12 +14,8 @@ namespace Transcoder
             Bitrate = bitrate;
             TranscoderArguments = transcoderArguments;
         }
-
-        public readonly int Id;
-        public readonly string Name;
-        public readonly string Description;
-        public readonly string Resolution;
-        public readonly string Bitrate;
-        internal readonly string TranscoderArguments;
+        
+        
+        
     }
 }
