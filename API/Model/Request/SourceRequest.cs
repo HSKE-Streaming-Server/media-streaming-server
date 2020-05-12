@@ -1,10 +1,10 @@
-namespace hsk_media_server.Model
+namespace API.Model.Request
 {
     public class SourceRequest{
 
-        public string token {get; set;}
+        public string Token {get; set;}
 
-        public string type {get; set;}
+        public string Type {get; set;}
 
     }
 }

@@ -1,17 +1,13 @@
-namespace hsk_media_server.Model
+namespace API.Model.Request
 {
-    public class StreamRequest{
+    public class StreamRequest
+    {
 
-        public string token {get; set;}
+        public string Token;
 
-        public string streamId {get; set;}
+        public string StreamId;
 
-        public class Settings{
-
-            public int videoPresetId {get; set;}
-
-            public int audioPresetId {get; set;}
-        }
+        public StreamSettings Settings;
 
     }
 }
