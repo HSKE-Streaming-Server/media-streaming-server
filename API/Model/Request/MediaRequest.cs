@@ -4,7 +4,7 @@ namespace API.Model.Request
 
         public string Token {get; set;}
 
-        public string Source {get; set;}
+        public string Category {get; set;}
 
     }
 }

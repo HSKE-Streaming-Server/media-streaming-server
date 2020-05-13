@@ -2,20 +2,15 @@ namespace Transcoder
 {
     public class VideoPreset : Preset
     {
-        public readonly string Resolution;
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        public string Resolution { get; private set; }
         
         internal VideoPreset(int id, string name, string description, string resolution, string bitrate,
-            string transcoderArguments)
+            string transcoderArguments) : base(id, name, description, bitrate, transcoderArguments)
         {
-            Id = id;
-            Name = name;
-            Description = description;
             Resolution = resolution;
-            Bitrate = bitrate;
-            TranscoderArguments = transcoderArguments;
         }
-        
-        
         
     }
 }
