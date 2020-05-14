@@ -2,7 +2,7 @@ namespace Transcoder
 {
     public class AudioPreset : Preset
     {
-        internal AudioPreset(int id, string name, string description, string bitrate, string transcoderArguments) : base(id,name,description,bitrate,transcoderArguments) { }
+        internal AudioPreset(int presetId, string displayName, string description, int bitrate, string transcoderArguments) : base(presetId,displayName,description,bitrate,transcoderArguments) { }
         
     }
 }

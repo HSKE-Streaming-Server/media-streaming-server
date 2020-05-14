@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace MediaInput
 {
@@ -21,7 +22,8 @@ namespace MediaInput
         public string Category { get; internal set; }
         public bool TunerIsSource { get; internal set; }
         public bool Livestream { get; internal set; }
+        [JsonPropertyName("image")]
         public Uri ImageLocation { get; internal set; }
-        public Uri ContentLocation { get; internal set; }
+        internal Uri ContentLocation { get; set; }
     }
 }

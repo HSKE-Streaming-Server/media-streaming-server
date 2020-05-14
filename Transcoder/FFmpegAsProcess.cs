@@ -39,14 +39,14 @@ namespace Transcoder
             {
                 var values = preset.GetChildren().ToDictionary(item => item.Key, item => item.Value);
                 _audioPresets.Add(int.Parse(values["Id"]), new AudioPreset(int.Parse(values["Id"]), values["Name"],
-                    values["Description"], values["Bitrate"], values["TranscoderArguments"]));
+                    values["Description"], int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
 
             foreach (var preset in videoPresets)
             {
                 var values = preset.GetChildren().ToDictionary(item => item.Key, item => item.Value);
                 _videoPresets.Add(int.Parse(values["Id"]), new VideoPreset(int.Parse(values["Id"]), values["Name"],
-                    values["Description"], values["Resolution"], values["Bitrate"], values["TranscoderArguments"]));
+                    values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]), int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
         }
 
@@ -86,7 +86,7 @@ namespace Transcoder
 
 
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
-            return new Uri($"http://{_config["hostname"]}/{folderName}/out.mpd");
+            return new Uri($"https://{_config["hostname"]}/{folderName}/out.mpd");
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()

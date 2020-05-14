@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using API.Model;
+using API.Model.Request;
 using MediaInput;
 using Org.BouncyCastle.Asn1.X509;
 using Transcoder;
@@ -59,16 +60,24 @@ namespace API.Manager
             return _grabber.GetAvailableContentInformation(source);
         }
 
-        public Tuple<Uri, int, int> GetStream(string streamId, int videoPreset, int audioPreset)
+        public StreamResponse GetStream(string streamId, int videoPreset, int audioPreset)
         {
             var streamResponse = _grabber.GetMediaStream(streamId);
-            if (_transcoder.GetAvailableAudioPresets().All(item => item.Id != audioPreset))
-                audioPreset = _transcoder.GetAvailableAudioPresets().First().Id;
-            if (_transcoder.GetAvailableVideoPresets().All(item => item.Id != videoPreset))
-                videoPreset = _transcoder.GetAvailableVideoPresets().First().Id;
+            if (_transcoder.GetAvailableAudioPresets().All(item => item.presetID != audioPreset))
+                audioPreset = _transcoder.GetAvailableAudioPresets().First().presetID;
+            if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
+                videoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
                 
             var ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
-            return new Tuple<Uri, int, int>(ourUri, videoPreset, audioPreset);
+            return new StreamResponse()
+            {
+                Settings = new StreamSettings()
+                {
+                    AudioPresetId = audioPreset,
+                    VideoPresetId = videoPreset
+                },
+                StreamLink = ourUri
+            };
         }
 
         public IEnumerable<VideoPreset> GetVideoPresets()

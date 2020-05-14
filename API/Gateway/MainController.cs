@@ -85,8 +85,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status400BadRequest)] //if request null
         public ActionResult<IEnumerable<ContentInformation>> PostMedia(MediaRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Category) ||
-                string.IsNullOrWhiteSpace(request.Token))
+            if (string.IsNullOrWhiteSpace(request.Category))
                 return BadRequest();
                 
             //TODO: AccountManager.checkToken(token)
@@ -100,13 +99,13 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status400BadRequest)] //if either video or audio or streamid are invalid or non-existent
         [ProducesResponseType(StatusCodes.Status401Unauthorized)] //if token invalid
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)] //if tuner is already in use and tuner content is requested 
-        public ActionResult<Tuple<Uri, int, int>> PostStream(StreamRequest streamRequest)
+        public ActionResult<StreamResponse> PostStream(StreamRequest streamRequest)
         {
-            if (string.IsNullOrWhiteSpace(streamRequest.Token) ||
-                string.IsNullOrWhiteSpace(streamRequest.StreamId))
+            if (string.IsNullOrWhiteSpace(streamRequest.stream_id))
                 return BadRequest();
             //TODO: AccountManager.checkToken(token)
-            return _serverManager.GetStream(streamRequest.StreamId, streamRequest.Settings.VideoPresetId,
+            
+            return _serverManager.GetStream(streamRequest.stream_id, streamRequest.Settings.VideoPresetId,
                 streamRequest.Settings.AudioPresetId);
         }
 

@@ -7,7 +7,7 @@
       "Id": "1",
       "Name": "Low",
       "Description": "Low Quality AAC Audio",
-      "Bitrate": "32k",
+      "Bitrate": 32000,
       "TranscoderArguments": "-c:a aac -b:a 32k -profile:a aac_he_v2"
     }
   ],
@@ -17,8 +17,9 @@
       "Id": "1",
       "Name": "Low",
       "Description": "Low Quality Video",
-      "Resolution": "240x320",
-      "Bitrate": "300k",
+      "ResolutionX": 240,
+      "ResolutionY": 320,
+      "Bitrate": 300000,
       "TranscoderArguments": "-c:v h264_nvenc -s 240x320 -aspect 16:9"
     }
   ]

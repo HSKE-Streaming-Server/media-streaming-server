@@ -6,18 +6,18 @@ namespace Transcoder
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public abstract class Preset
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
+        public int presetID { get; private set; }
+        public string displayName { get; private set; }
         public string Description { get; private set; }
-        public string Bitrate { get; private set; }
+        public int bitrate { get; private set; }
         internal string TranscoderArguments { get; private set; }
 
-        protected Preset(int id, string name, string description, string bitrate, string transcoderArguments)
+        protected Preset(int presetid, string displayname, string description, int bitrate, string transcoderArguments)
         {
-            Id = id;
-            Name = name;
+            presetID = presetid;
+            displayName = displayname;
             Description = description;
-            Bitrate = bitrate;
+            this.bitrate = bitrate;
             TranscoderArguments = transcoderArguments;
         }
        
