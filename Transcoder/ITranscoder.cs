@@ -13,7 +13,7 @@ namespace Transcoder
         /// <param name="videoPreset">The ID of the video preset to be used for the transcoding.</param>
         /// <param name="audioPreset">The ID of the audio preset to be used for the transcoding.</param>
         /// <returns>Returns the URI where the transcoded files are, specifically the playlist file.</returns>
-        public string StartProcess(Uri uri,int videoPreset, int audioPreset);
+        public Uri StartProcess(Uri uri, int videoPreset, int audioPreset);
 
         
         /// <summary>

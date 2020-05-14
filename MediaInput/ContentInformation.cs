@@ -4,11 +4,8 @@ namespace MediaInput
 {
     public class ContentInformation
     {
-        public ContentInformation()
-        {
-        }
 
-        public ContentInformation(string id, string name, string category, bool tuner, bool livestream, Uri image, Uri content)
+        internal ContentInformation(string id, string name, string category, bool tuner, bool livestream, Uri image, Uri content)
         {
             Id = id;
             Name = name;

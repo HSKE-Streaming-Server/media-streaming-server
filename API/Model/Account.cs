@@ -1,11 +1,11 @@
 
 
-namespace hsk_media_server.Model
+namespace API.Model
 {
     public class Account{
 
-        public string username {get; set;}
+        public string Username {get; set;}
 
-        public string password {get; set;}
+        public string Password {get; set;}
     }
 }

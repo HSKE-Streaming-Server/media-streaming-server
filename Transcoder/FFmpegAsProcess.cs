@@ -28,7 +28,7 @@ namespace Transcoder
         {
             //Read config file
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
-            _webroot = Path.Combine(_config["ApacheWebroot"], "transcoded");
+            _webroot = Path.Combine(_config["ApacheWebroot"]);
             //Presets
 
             var audioPresets = _config.GetChildren().First(item => item.Key == "AudioPresets").GetChildren();
@@ -60,7 +60,7 @@ namespace Transcoder
             return _singleton ??= new FFmpegAsProcess();
         }
 
-        public string StartProcess(Uri uri, int videoPreset, int audioPreset)
+        public Uri StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
             if (!_videoPresets.ContainsKey(videoPreset))
                 throw new ArgumentException("The specified video preset doesn't exist.");
@@ -71,7 +71,7 @@ namespace Transcoder
 
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
-            var folderName = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
+            var folderName = Path.Combine("transcoded", timestamp.ToString("yyyy-MM-dd-HH-mm-ss"));
             var folderPath = Path.Combine(_webroot, folderName);
             var selectedVideoPreset = _videoPresets[videoPreset];
             var selectedAudioPreset = _audioPresets[audioPreset];
@@ -86,7 +86,7 @@ namespace Transcoder
 
 
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
-            return Path.Combine(_webroot, folderName, "out.mpd");
+            return new Uri($"http://{_config["hostname"]}/{folderName}/out.mpd");
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()
