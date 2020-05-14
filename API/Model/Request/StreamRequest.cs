@@ -1,13 +1,9 @@
 namespace API.Model.Request
 {
-    public class StreamRequest
+    public struct StreamRequest
     {
-
-        public string Token;
-
-        public string StreamId;
-
-        public StreamSettings Settings;
-
+        public string Token { get; set; }
+        public string StreamId { get; set; }
+        public StreamSettings Settings { get; set; }
     }
 }

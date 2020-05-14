@@ -1,6 +1,6 @@
 namespace API.Model.Request
 {
-    public class MediaRequest{
+    public struct MediaRequest{
 
         public string Token {get; set;}
 

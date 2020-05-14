@@ -1,6 +1,6 @@
 namespace API.Model.Request
 {
-    public class StreamSettings{
+    public struct StreamSettings{
 
         public int VideoPresetId {get; set;}
 

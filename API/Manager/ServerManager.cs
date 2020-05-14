@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using API.Model;
 using MediaInput;
+using Org.BouncyCastle.Asn1.X509;
 using Transcoder;
 
 namespace API.Manager
@@ -58,11 +59,16 @@ namespace API.Manager
             return _grabber.GetAvailableContentInformation(source);
         }
 
-        public Tuple<Uri, bool> GetStream(string streamId, int videoPreset, int audioPreset)
+        public Tuple<Uri, int, int> GetStream(string streamId, int videoPreset, int audioPreset)
         {
-            Tuple<Uri, bool> streamResponse = _grabber.GetMediaStream(streamId);
-            string ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
-            return new Tuple<Uri, bool>(new Uri(ourUri), streamResponse.Item2);
+            var streamResponse = _grabber.GetMediaStream(streamId);
+            if (_transcoder.GetAvailableAudioPresets().All(item => item.Id != audioPreset))
+                audioPreset = _transcoder.GetAvailableAudioPresets().First().Id;
+            if (_transcoder.GetAvailableVideoPresets().All(item => item.Id != videoPreset))
+                videoPreset = _transcoder.GetAvailableVideoPresets().First().Id;
+                
+            var ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
+            return new Tuple<Uri, int, int>(ourUri, videoPreset, audioPreset);
         }
 
         public IEnumerable<VideoPreset> GetVideoPresets()

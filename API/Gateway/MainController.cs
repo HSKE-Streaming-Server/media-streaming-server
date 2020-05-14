@@ -82,11 +82,17 @@ namespace API.Gateway
         [HttpPost("media")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)] //if token invalid
-        public ActionResult<IEnumerable<ContentInformation>> PostMedia(string token, string category)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] //if request null
+        public ActionResult<IEnumerable<ContentInformation>> PostMedia(MediaRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Category) ||
+                string.IsNullOrWhiteSpace(request.Token))
+                return BadRequest();
+                
             //TODO: AccountManager.checkToken(token)
+            //var tok = Request.Form["token"];
 
-            return _serverManager.GetMedia(category).ToList();
+            return _serverManager.GetMedia(request.Category).ToList();
         }
 
         [HttpPost("stream")]
@@ -94,11 +100,14 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status400BadRequest)] //if either video or audio or streamid are invalid or non-existent
         [ProducesResponseType(StatusCodes.Status401Unauthorized)] //if token invalid
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)] //if tuner is already in use and tuner content is requested 
-        public JsonResult PostStream(StreamRequest streamRequest)
+        public ActionResult<Tuple<Uri, int, int>> PostStream(StreamRequest streamRequest)
         {
+            if (string.IsNullOrWhiteSpace(streamRequest.Token) ||
+                string.IsNullOrWhiteSpace(streamRequest.StreamId))
+                return BadRequest();
             //TODO: AccountManager.checkToken(token)
-            return Json(_serverManager.GetStream(streamRequest.StreamId, streamRequest.Settings.VideoPresetId,
-                streamRequest.Settings.AudioPresetId));
+            return _serverManager.GetStream(streamRequest.StreamId, streamRequest.Settings.VideoPresetId,
+                streamRequest.Settings.AudioPresetId);
         }
 
         [HttpPost("presets")]

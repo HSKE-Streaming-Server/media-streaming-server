@@ -1,6 +1,6 @@
 namespace API.Model.Request
 {
-    public class SourceRequest{
+    public struct SourceRequest{
 
         public string Token {get; set;}
 
