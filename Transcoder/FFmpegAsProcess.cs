@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration; //for IConfiguration
 using Newtonsoft.Json; //for JsonConvert
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics; //for Process
 using System.IO;
@@ -48,12 +49,16 @@ namespace Transcoder
                 _videoPresets.Add(int.Parse(values["Id"]), new VideoPreset(int.Parse(values["Id"]), values["Name"],
                     values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]), int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
+
+            TranscoderCache = new List<TranscoderCachingObject>();
         }
 
         static FFmpegAsProcess()
         {
             _singleton = new FFmpegAsProcess();
         }
+
+        public IList<TranscoderCachingObject> TranscoderCache { get; }
 
         public static FFmpegAsProcess GetSingleton()
         {
@@ -76,17 +81,21 @@ namespace Transcoder
             var selectedVideoPreset = _videoPresets[videoPreset];
             var selectedAudioPreset = _audioPresets[audioPreset];
 
+            //cancellationTokenSource for Keepalive and Caching
+            var cancellationTokenSource = new CancellationTokenSource();
+
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
 
             ProcessFFmpeg(
                 $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd",
-                folderPath);
+                folderPath, cancellationTokenSource);
 
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
 
 
-            //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
-            return new Uri($"https://{_config["hostname"]}/{folderName}/out.mpd");
+            var transcodedVideoUri = new Uri($"https://{_config["hostname"]}/{folderName}/out.mpd");
+            TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
+            return transcodedVideoUri;
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()
@@ -105,7 +114,7 @@ namespace Transcoder
         /// </summary>
         /// <param name="parameter">Declare arguments and options.</param>
         /// <param name="path">The path in which the transcoded fragments shall be located.</param>
-        private Task ProcessFFmpeg(string parameter, string path)
+        private Task ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
         {
             //TODO - Threads (Nuget Zeitstempel)
 
@@ -136,6 +145,11 @@ namespace Transcoder
                 logfile.WriteLine($"INVOKING FFMPEG WITH PARAMETERS: {parameter}");
                 while (!reader.EndOfStream)
                 {
+                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        logfile.WriteLine("KeepAlive Token invalidated, Process Suspended");
+                        break;
+                    }
                     while (reader.Peek() != -1)
                         logfile.WriteLine(reader.ReadLine());
                     logfile.Flush();
@@ -149,6 +163,7 @@ namespace Transcoder
                 logfile.Flush();
                 logfile.Dispose();
                 ffmpegProcess.Close();
+                cancellationTokenSource.Cancel();
             });
 
 

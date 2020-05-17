@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using API.Model;
 using API.Model.Request;
 using MediaInput;
@@ -25,18 +27,18 @@ namespace API.Manager
             RevalidateToken(token, _defaultTimespan);
             throw new NotImplementedException();
         }
-        
+
         /// <summary>
         /// Revalidates a token for a certain period.
         /// </summary>
         /// <param name="token">The token that is to be revalidated.</param>
         /// <param name="validityPeriod">The period the token should be revalidated for</param>
-        
+
         private void RevalidateToken(string token, TimeSpan validityPeriod)
         {
             throw new NotImplementedException();
         }
-        
+
         /// <summary>
         /// Get the username for a supplied token.
         /// </summary>
@@ -67,8 +69,13 @@ namespace API.Manager
                 audioPreset = _transcoder.GetAvailableAudioPresets().First().presetID;
             if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
                 videoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
-                
-            var ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
+
+            Uri ourUri;
+            var cacheObject = _transcoder.TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetID == audioPreset && item.VideoPresetID == videoPreset);
+            if (cacheObject != null)
+                ourUri = cacheObject.VideoTranscodedUri;
+            else
+                ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
             return new StreamResponse()
             {
                 Settings = new StreamSettings()
@@ -88,6 +95,31 @@ namespace API.Manager
         public IEnumerable<AudioPreset> GetAudioPresets()
         {
             return _transcoder.GetAvailableAudioPresets();
+        }
+
+        private Task CheckTranscodingCache()
+        {
+            //With StandardError I get both normal output and errors (Because of "Error" in the name, it's probably confusing)
+            //It's actually that what we see in the command prompt after we hit enter
+            //Determined where the process is starting
+
+            var TranscoderCache = _transcoder.TranscoderCache;
+            Task checkCache = new Task(() =>
+            {
+
+                while (true)
+                {
+                    foreach (var video in TranscoderCache)
+                    {
+                        if (video.CancellationTokenSource.IsCancellationRequested)
+                            TranscoderCache.Remove(video);
+                    }
+                    Thread.Sleep(3000);
+
+                }
+            });
+
+            return checkCache;
         }
     }
 }
