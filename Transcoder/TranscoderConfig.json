@@ -1,34 +1,18 @@
 ﻿{
-  "ApacheWebroot": "/var/www/html/",
-  "Hostname": "icanhasicetea.ddns.net",
+  "ApacheWebroot": "/opt/lampp/htdocs/",
+  "Hostname": "localhost",
   "AudioPresets":
   [
-    {
-      "Id": "0",
-      "Name": "Source",
-      "Description": "Source Quality aac",
-      "Bitrate": 0,
-      "TranscoderArguments": "-c:a aac"
-    },
     {
       "Id": "1",
       "Name": "Low",
       "Description": "Low Quality AAC Audio",
       "Bitrate": 32000,
-      "TranscoderArguments": "-c:a aac -strict experimental"
+      "TranscoderArguments": "-c:a aac -b:a 32k -profile:a aac_he_v2"
     }
   ],
   "VideoPresets": 
   [
-    {
-      "Id": "0",
-      "Name": "Source",
-      "Description": "Source Quality h264",
-      "ResolutionX": 0,
-      "ResolutionY": 0,
-      "Bitrate": 0,
-      "TranscoderArguments": "-c:v h264"
-    },
     {
       "Id": "1",
       "Name": "Low",
@@ -36,8 +20,7 @@
       "ResolutionX": 240,
       "ResolutionY": 320,
       "Bitrate": 300000,
-      "TranscoderArguments": "-c:v h264 -s 240x320 -aspect 16:9"
+      "TranscoderArguments": "-c:v h264_nvenc -s 240x320 -aspect 16:9"
     }
-    
   ]
 }
