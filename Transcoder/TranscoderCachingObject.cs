@@ -12,14 +12,16 @@ namespace Transcoder
             VideoSourceUri = videoSource;
             AudioPresetID = audioPresetId;
             VideoPresetID = videoPresetId;
-            VideoTranscodedUri = videoTranscodedUri;
+            TranscodedVideoUri = videoTranscodedUri;
             CancellationTokenSource = cancellationTokenSource;
+            KeepAliveTimeStamp = DateTime.Now;
         }
 
         public Uri VideoSourceUri { get; }
         public int AudioPresetID { get; }
         public int VideoPresetID { get; }
-        public Uri VideoTranscodedUri { get; }
+        public Uri TranscodedVideoUri { get; }
         public CancellationTokenSource CancellationTokenSource {get;}
+        public DateTime KeepAliveTimeStamp { get; set; }
     }
 }

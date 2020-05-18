@@ -7,6 +7,7 @@ using API.Model;
 using API.Model.Request;
 using MediaInput;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Ocsp;
 using Transcoder;
 
 namespace API.Manager
@@ -16,6 +17,14 @@ namespace API.Manager
         private readonly IGrabber _grabber = Grabber.GetSingleton();
         private readonly ITranscoder _transcoder = FFmpegAsProcess.GetSingleton();
         private static readonly TimeSpan _defaultTimespan = TimeSpan.FromMinutes(30);
+
+        public ServerManager()
+        {
+            CheckTranscodingCache().Start();
+            TranscoderCache = _transcoder.TranscoderCache;
+        }
+
+        private IList<TranscoderCachingObject> TranscoderCache { get; set; }
 
         /// <summary>
         /// Checks whether or not a token is still valid for use and automatically revalidates it, if it is still valid.
@@ -70,12 +79,15 @@ namespace API.Manager
             if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
                 videoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
 
-            Uri ourUri;
-            var cacheObject = _transcoder.TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetID == audioPreset && item.VideoPresetID == videoPreset);
-            if (cacheObject != null)
-                ourUri = cacheObject.VideoTranscodedUri;
-            else
-                ourUri = _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
+            Uri ourUri = null;
+
+            lock (TranscoderCache)
+            {
+                var cacheObject = TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetID == audioPreset && item.VideoPresetID == videoPreset);
+                if (cacheObject != null)
+                    ourUri = cacheObject.TranscodedVideoUri;
+            }
+            ourUri ??= _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
             return new StreamResponse()
             {
                 Settings = new StreamSettings()
@@ -97,28 +109,42 @@ namespace API.Manager
             return _transcoder.GetAvailableAudioPresets();
         }
 
+        public void KeepAlive(KeepAliveRequest request)
+        {
+            lock (TranscoderCache){
+                var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
+                    item.AudioPresetID == request.AudioPreset &&
+                    item.VideoPresetID == request.VideoPreset);
+                cacheObject.KeepAliveTimeStamp = DateTime.Now;
+            }
+
+        }
+
         private Task CheckTranscodingCache()
         {
-            //With StandardError I get both normal output and errors (Because of "Error" in the name, it's probably confusing)
-            //It's actually that what we see in the command prompt after we hit enter
-            //Determined where the process is starting
 
-            var TranscoderCache = _transcoder.TranscoderCache;
             Task checkCache = new Task(() =>
             {
 
                 while (true)
                 {
-                    foreach (var video in TranscoderCache)
+                    lock (TranscoderCache)
                     {
-                        if (video.CancellationTokenSource.IsCancellationRequested)
-                            TranscoderCache.Remove(video);
+                        foreach (var video in TranscoderCache)
+                        {
+                            if ((DateTime.Now - video.KeepAliveTimeStamp) > TimeSpan.FromMinutes(1))
+                                video.CancellationTokenSource.Cancel();
+                            if (video.CancellationTokenSource.IsCancellationRequested)
+                            {
+                                TranscoderCache.Remove(video);
+                                video.CancellationTokenSource.Dispose();
+                            }
+                        }
                     }
-                    Thread.Sleep(3000);
+                    Thread.Sleep(5000);
 
                 }
             });
-
             return checkCache;
         }
     }

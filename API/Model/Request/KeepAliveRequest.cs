@@ -10,6 +10,6 @@ namespace API.Model.Request
         public string Token { get; set; }
         public int AudioPreset { get; set; }
         public int VideoPreset { get; set; }
-        public string VideoID { get; set; }
+        public Uri TranscodedVideoUri { get; set; }
     }
 }

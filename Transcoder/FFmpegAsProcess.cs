@@ -92,9 +92,11 @@ namespace Transcoder
 
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
 
-
             var transcodedVideoUri = new Uri($"https://{_config["hostname"]}/{folderName}/out.mpd");
-            TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
+            lock (TranscoderCache)
+            {
+                TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
+            }
             return transcodedVideoUri;
         }
 
@@ -145,11 +147,20 @@ namespace Transcoder
                 logfile.WriteLine($"INVOKING FFMPEG WITH PARAMETERS: {parameter}");
                 while (!reader.EndOfStream)
                 {
-                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    try
+                    {
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            logfile.WriteLine("KeepAlive Token invalidated, Process Suspended");
+                            break;
+                        }
+                    }
+                    catch (ObjectDisposedException)
                     {
                         logfile.WriteLine("KeepAlive Token invalidated, Process Suspended");
                         break;
                     }
+                    
                     while (reader.Peek() != -1)
                         logfile.WriteLine(reader.ReadLine());
                     logfile.Flush();
@@ -163,7 +174,12 @@ namespace Transcoder
                 logfile.Flush();
                 logfile.Dispose();
                 ffmpegProcess.Close();
-                cancellationTokenSource.Cancel();
+                try
+                {
+                    cancellationTokenSource.Cancel();
+                }
+                catch (ObjectDisposedException) { 
+                }
             });
 
 
