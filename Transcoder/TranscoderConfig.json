@@ -8,7 +8,7 @@
       "Name": "Low",
       "Description": "Low Quality AAC Audio",
       "Bitrate": 32000,
-      "TranscoderArguments": "-c:a aac -b:a 32k -profile:a aac_he_v2"
+      "TranscoderArguments": "-c:a aac"
     }
   ],
   "VideoPresets": 
@@ -20,7 +20,7 @@
       "ResolutionX": 1920,
       "ResolutionY": 1080,
       "Bitrate": 1000000,
-      "TranscoderArguments": "-c:v libx265 -r:v 25 -s 1920x1080 -aspect 16:9 -crf 20 -maxrate 1000k -bufsize 1250k"
+      "TranscoderArguments": "-c:v libx264 -b:v:0 800k -b:v:1 300k -s:v:1 320x170 -profile:v:1 baseline"
     },
     {
       "Id": "1",
