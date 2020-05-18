@@ -1,3 +1,6 @@
+#Nlog ignore
+*nlog
+
 ### C/C++ Ignores
 
 # Prerequisites

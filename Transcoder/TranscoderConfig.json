@@ -1,5 +1,5 @@
 ﻿{
-  "ApacheWebroot": "/opt/lampp/htdocs/",
+  "ApacheWebroot": "/var/www/html/",
   "Hostname": "localhost",
   "AudioPresets":
   [

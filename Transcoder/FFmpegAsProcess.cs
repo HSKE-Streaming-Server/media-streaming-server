@@ -7,7 +7,8 @@ using System.IO;
 using System.Linq; //for StreamReader
 using System.Reflection.PortableExecutable;
 using System.Threading; //for Thread
-using System.Threading.Tasks; //for Task
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging; //for Task
 
 namespace Transcoder
 {
@@ -16,16 +17,16 @@ namespace Transcoder
         //TODO - Für transcodierte Videos Datenbankeinträge setzen (Referenz)
         //TODO - Videos auf dem Server löschen (nach 3 Tagen) sonst läufts voll
         //TODO - presets übergeben
-        private static FFmpegAsProcess _singleton;
+        private readonly ILogger<FFmpegAsProcess> _logger;
+        private readonly Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
+        private readonly Dictionary<int, VideoPreset> _videoPresets = new Dictionary<int, VideoPreset>();
+        private readonly IConfiguration _config;
+        private readonly string _webroot;
 
-
-        private Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
-        private Dictionary<int, VideoPreset> _videoPresets = new Dictionary<int, VideoPreset>();
-        private IConfiguration _config;
-        private string _webroot;
-
-        private FFmpegAsProcess()
+        public FFmpegAsProcess(ILogger<FFmpegAsProcess> logger)
         {
+            _logger = logger;
+            
             //Read config file
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
             _webroot = Path.Combine(_config["ApacheWebroot"]);
@@ -48,45 +49,59 @@ namespace Transcoder
                 _videoPresets.Add(int.Parse(values["Id"]), new VideoPreset(int.Parse(values["Id"]), values["Name"],
                     values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]), int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
-        }
-
-        static FFmpegAsProcess()
-        {
-            _singleton = new FFmpegAsProcess();
-        }
-
-        public static FFmpegAsProcess GetSingleton()
-        {
-            return _singleton ??= new FFmpegAsProcess();
+            _logger.LogInformation($"Transcoder found VideoPresets: {_videoPresets.Count()} AudioPresets: {_audioPresets.Count()}");
+            
+            _logger.LogInformation($"{nameof(FFmpegAsProcess)} initialized");
         }
 
         public Uri StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
-            if (!_videoPresets.ContainsKey(videoPreset))
+            _logger.LogInformation($"Starting transcode: Uri={uri},VideoPreset={videoPreset},AudioPreset={audioPreset}");
+            if (!_videoPresets.ContainsKey(videoPreset)){
+                _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ArgumentException("The specified video preset doesn't exist.");
+            }
+
             if (!_audioPresets.ContainsKey(audioPreset))
+            {
+                _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ArgumentException("The specified audio preset doesn't exist.");
-            if (uri == null || string.IsNullOrEmpty(uri.ToString()))
+            }
+
+            if (uri == null || string.IsNullOrWhiteSpace(uri.ToString()))
+            {
+                _logger.LogTrace($"Throwing argument exception because {nameof(uri)} is null, empty or whitespace");
                 throw new ArgumentNullException(nameof(uri), "Uri cannot be null or empty.");
+            }
 
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
             var folderName = Path.Combine("transcoded", timestamp.ToString("yyyy-MM-dd-HH-mm-ss"));
             var folderPath = Path.Combine(_webroot, folderName);
+            _logger.LogTrace($"Created folder {folderPath}");
             var selectedVideoPreset = _videoPresets[videoPreset];
             var selectedAudioPreset = _audioPresets[audioPreset];
 
             //.m3u8 will be passed and the transcoded files will be stored on the server -> C:/xampp/htdocs/ouput_mpd
-
-            ProcessFFmpeg(
-                $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd",
-                folderPath);
-
+            var parameter =
+                $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd";
+            try
+            {
+                
+                ProcessFFmpeg(parameter, folderPath);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, $"Failed to start FFmpeg process with parameters: {parameter} in {folderPath}");
+                throw;
+            }
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
 
 
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
-            return new Uri($"https://{_config["hostname"]}/{folderName}/out.mpd");
+            var outUri = $"https://{_config["hostname"]}/{folderName}/out.mpd";
+            _logger.LogDebug($"Gracefully returning {outUri} for request for {uri} with VideoPreset {videoPreset} and AudioPreset {audioPreset}");
+            return new Uri(outUri);
         }
 
         public IEnumerable<VideoPreset> GetAvailableVideoPresets()
@@ -121,6 +136,7 @@ namespace Transcoder
                     WorkingDirectory = path
                 }
             };
+            _logger.LogTrace($"Created ffmpeg process with arguments: {parameter} in working directory: {path}");
             //With StandardError I get both normal output and errors (Because of "Error" in the name, it's probably confusing)
             //It's actually that what we see in the command prompt after we hit enter
             //Determined where the process is starting
@@ -128,8 +144,9 @@ namespace Transcoder
 
             Task loggingTask = new Task(() =>
             {
-                var logfile = new StreamWriter(File.OpenWrite(path + "/transcoder.log"));
-
+                var logfilePath = Path.Combine(path, "transcoder.log");
+                var logfile = new StreamWriter(File.OpenWrite(logfilePath));
+                _logger.LogTrace($"Created transcoder logfile in {logfilePath}");
                 StreamReader reader = ffmpegProcess.StandardError;
 
                 logfile.WriteLine($"STARTING LOG AT {DateTime.Now:g}");
@@ -137,40 +154,49 @@ namespace Transcoder
                 while (!reader.EndOfStream)
                 {
                     while (reader.Peek() != -1)
-                        logfile.WriteLine(reader.ReadLine());
+                    {
+                        var line = reader.ReadLine();
+                        _logger.LogTrace($"PATH: {path}, LINE: {line}");
+                        logfile.WriteLine(line);
+                    }
                     logfile.Flush();
                     Thread.Sleep(250);
 
                     if (!ffmpegProcess.HasExited||!reader.EndOfStream) continue;
                     logfile.WriteLine("Process exited with code: " + ffmpegProcess.ExitCode);
+                    _logger.LogInformation($"FFmpeg process in directory {path} exited with code {ffmpegProcess.ExitCode}");
                     ffmpegProcess.Dispose();
                     break;
                 }
                 logfile.Flush();
                 logfile.Dispose();
+                if (!ffmpegProcess.HasExited)
+                    _logger.LogInformation($"Closing running FFmpeg process in {path}");
                 ffmpegProcess.Close();
             });
+
 
 
             try
             {
                 if (!ffmpegProcess.Start())
                 {
-                    throw new Exception("Process.Start() returned false.");
+                    throw new FFmpegProcessException(parameter, path, "Process.Start() returned false.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Process didn't started!\n\n" +
-                                  ex.GetType() + ": " + ex.Message);
+                throw new FFmpegProcessException(ex, parameter, path, "Failed to start FFmpeg process");
             }
-
+            
             loggingTask.Start();
             //Pause the thread until we see the file pop up
+            var expectedFile = Path.Combine(path, "out.mpd");
             do
             {
                 Thread.Sleep(50);
-            } while (!File.Exists(Path.Combine(path, "out.mpd")));
+            } while (!File.Exists(expectedFile));
+            _logger.LogTrace($"Expected file found at {expectedFile}");
             return loggingTask;
         }
     }
