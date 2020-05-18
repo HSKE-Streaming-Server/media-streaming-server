@@ -13,7 +13,7 @@ namespace Transcoder.Test
         [SetUp]
         public void Setup()
         {
-            _ffmpeg = FFmpegAsProcess.GetSingleton();
+            throw new NotImplementedException();
         }
 
 

@@ -14,7 +14,7 @@ namespace MediaInput.Test
         [SetUp]
         public void Setup()
         {
-            _grabber = Grabber.GetSingleton();
+            throw new NotImplementedException();
         }
 
         [Test]
