@@ -166,7 +166,11 @@ namespace Transcoder
             }
 
             loggingTask.Start();
-
+            //Pause the thread until we see the file pop up
+            do
+            {
+                Thread.Sleep(50);
+            } while (!File.Exists(Path.Combine(path, "out.mpd")));
             return loggingTask;
         }
     }
