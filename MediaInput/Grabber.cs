@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 
 namespace MediaInput
@@ -15,35 +16,21 @@ namespace MediaInput
     public class Grabber : IGrabber
     {
         private DateTime _lastCacheTimestamp = DateTime.UnixEpoch;
-
-        //Singleton pattern
-
-        private Grabber()
+        private IConfiguration Config { get; }
+        private string SqlConnectionString { get; }
+        private ILogger<Grabber> _logger;
+        public Grabber(ILogger<Grabber> logger)
         {
+            _logger = logger;
+            
             Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
             SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
                 $"Database={Config["MySqlServerDatabase"]};" +
                 $"Uid={Config["MySqlServerUser"]};" +
                 $"Pwd={Config["MySqlServerPassword"]};";
+            
+            _logger.LogInformation($"{nameof(Grabber)} initialized");
         }
-
-        static Grabber()
-        {
-            _singleton = new Grabber();
-        }
-
-        public static Grabber GetSingleton()
-        {
-            //TODO: how do we pass the HTTPClient to this class? 
-            //returns _singleton if its not null, otherwise creates new instance and assigns it to _singleton
-            return _singleton ??= new Grabber();
-        }
-
-        private IConfiguration Config { get; }
-
-        private string SqlConnectionString { get; }
-
-        private static Grabber _singleton { get; set; } = null;
 
         /// <summary>
         /// 
@@ -60,8 +47,18 @@ namespace MediaInput
                 };
 
                 var dataset = new DataSet();
-                adapter.Fill(dataset);
+                try
+                {
+                    adapter.Fill(dataset);
+                }
+                catch (MySqlException mySqlException)
+                {
+                    _logger.LogError(mySqlException, "Failed to fill dataset from MySQL database");
+                    throw;
+                }
+
                 var rowCollection = dataset.Tables[0].Rows;
+                _logger.LogTrace($"Found {rowCollection.Count} categories");
                 return (from DataRow entry in rowCollection
                         select (string)entry[0]);
             }
@@ -87,7 +84,7 @@ namespace MediaInput
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), new Uri((string)entry[5]), new Uri((string)entry[6]))).ToList();
+                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), (string)entry[5]!=""?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
             }
         }
 
