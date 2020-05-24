@@ -44,6 +44,8 @@ namespace API
 
             //app.UseHttpsRedirection();
 
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+
             app.UseRouting();
 
             app.UseAuthorization();
