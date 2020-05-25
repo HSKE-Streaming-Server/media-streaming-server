@@ -8,6 +8,7 @@ using API.Model.Request;
 using MediaInput;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Asn1.Ess;
 using Org.BouncyCastle.Ocsp;
@@ -28,10 +29,15 @@ namespace API.Gateway
     public class MainController : Controller
     {
         private readonly ServerManager _serverManager;
+        private readonly ILogger<MainController> _logger;
 
-        public MainController(ServerManager serverManager)
+        public MainController(ServerManager serverManager, ILogger<MainController> logger)
         {
+            //This constructor is called for every request. Therefore, keep it slim
             _serverManager = serverManager;
+            //Save injected logger
+            _logger = logger;
+            _logger.LogTrace($"{nameof(MainController)} initialized");
         }
 
 
@@ -40,6 +46,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status200OK)]
         public JsonResult PostAuthenticate(string token)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             throw new NotImplementedException();
             //return Json(_serverManager.Authenticate(account));
         }
@@ -49,6 +56,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public JsonResult PostLogin(Account account)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             //TODO: check login credentials, if bad return 400
             throw new NotImplementedException();
         }
@@ -57,6 +65,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status200OK)]
         public JsonResult PostLogout(string token)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             //When would you ever return false to this? Maybe when the token didn't exist in the first place?
             throw new NotImplementedException();
         }
@@ -67,6 +76,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status500InternalServerError)] //if mysql is misconfigured in grabberconf or database is incorrect
         public ActionResult<IEnumerable<string>> PostCategories(string token)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             //TODO: AccountManager.checkToken(token)
             //TODO: impl
             try
@@ -86,6 +96,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status400BadRequest)] //if request null
         public ActionResult<IEnumerable<ContentInformation>> PostMedia(MediaRequest request)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             if (string.IsNullOrWhiteSpace(request.Category))
                 return BadRequest();
                 
@@ -102,6 +113,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)] //if tuner is already in use and tuner content is requested 
         public ActionResult<StreamResponse> PostStream(StreamRequest streamRequest)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             if (string.IsNullOrWhiteSpace(streamRequest.stream_id))
                 return BadRequest();
             //TODO: AccountManager.checkToken(token)
@@ -115,6 +127,7 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public PresetResponse PostPresets(string token)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             //TODO: AccountManager.checkToken(token)
             return new PresetResponse
             {

@@ -1,3 +1,6 @@
+#Nlog ignore
+*nlog
+
 ### C/C++ Ignores
 
 # Prerequisites
@@ -470,3 +473,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/API/internal-nlog.txt

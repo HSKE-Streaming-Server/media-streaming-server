@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using API.Model;
 using API.Model.Request;
 using MediaInput;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Ocsp;
 using Transcoder;
@@ -14,14 +15,19 @@ namespace API.Manager
 {
     public class ServerManager
     {
-        private readonly IGrabber _grabber = Grabber.GetSingleton();
-        private readonly ITranscoder _transcoder = FFmpegAsProcess.GetSingleton();
+        private readonly IGrabber _grabber;
+        private readonly ITranscoder _transcoder;
+        private readonly ILogger<ServerManager> _logger;
+        
         private static readonly TimeSpan _defaultTimespan = TimeSpan.FromMinutes(30);
-
-        public ServerManager()
+        public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
         {
-            CheckTranscodingCache().Start();
+            _grabber = grabber;
+            _transcoder = transcoder;
+            _logger = logger;
             TranscoderCache = _transcoder.TranscoderCache;
+            CheckTranscodingCache().Start();
+            _logger.LogInformation($"{nameof(ServerManager)} initialized");
         }
 
         private IList<TranscoderCachingObject> TranscoderCache { get; set; }
@@ -33,6 +39,7 @@ namespace API.Manager
         /// <returns>Whether or not the token is valid.</returns>
         public bool CheckValidityOfToken(string token)
         {
+            _logger.LogInformation($"Checking validity of token {token}");
             RevalidateToken(token, _defaultTimespan);
             throw new NotImplementedException();
         }
@@ -45,6 +52,7 @@ namespace API.Manager
 
         private void RevalidateToken(string token, TimeSpan validityPeriod)
         {
+            _logger.LogInformation($"Revalidating token {token} for {validityPeriod:g}");
             throw new NotImplementedException();
         }
 
@@ -56,6 +64,7 @@ namespace API.Manager
         /// <exception cref="KeyNotFoundException">The token was either not found or is invalid.</exception>
         public string GetUsernameForToken(string token)
         {
+            _logger.LogInformation($"Finding user for token {token}");
             //TODO: check account, create Token, ...
             throw new NotImplementedException();
         }
@@ -63,22 +72,32 @@ namespace API.Manager
         //Returns all the "categories" or media library names, we should maybe refactor that name
         public IEnumerable<String> GetSources()
         {
+            _logger.LogTrace($"Getting all available categories");
             return _grabber.GetAvailableCategories();
         }
         //Returns all the available content pieces
         public IEnumerable<ContentInformation> GetMedia(string source)
         {
+            _logger.LogInformation($"Getting all media from the source {source}");
             return _grabber.GetAvailableContentInformation(source);
         }
 
         public StreamResponse GetStream(string streamId, int videoPreset, int audioPreset)
         {
+            _logger.LogInformation($"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
             var streamResponse = _grabber.GetMediaStream(streamId);
             if (_transcoder.GetAvailableAudioPresets().All(item => item.presetID != audioPreset))
-                audioPreset = _transcoder.GetAvailableAudioPresets().First().presetID;
+            {
+                var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().presetID;
+                _logger.LogWarning($"Replacing audioPreset {audioPreset} with {actualAudioPreset} because not found in transcoder");
+                audioPreset = actualAudioPreset;
+            }
             if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
-                videoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
-
+            {
+                var actualVideoPreset =_transcoder.GetAvailableVideoPresets().First().presetID;
+                _logger.LogWarning($"Replacing videoPreset {videoPreset} with {actualVideoPreset} because not found in transcoder");
+                videoPreset = actualVideoPreset;
+            }
             Uri ourUri = null;
 
             lock (TranscoderCache)
