@@ -27,7 +27,7 @@ namespace Transcoder
         public FFmpegAsProcess(ILogger<FFmpegAsProcess> logger)
         {
             _logger = logger;
-            
+
             //Read config file
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
             _webroot = Path.Combine(_config["ApacheWebroot"]);
@@ -51,16 +51,17 @@ namespace Transcoder
                     values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]), int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
             _logger.LogInformation($"Transcoder found VideoPresets: {_videoPresets.Count()} AudioPresets: {_audioPresets.Count()}");
-            
+
             _logger.LogInformation($"{nameof(FFmpegAsProcess)} initialized");
 
             TranscoderCache = new List<TranscoderCachingObject>();
         }
-
+        public IList<TranscoderCachingObject> TranscoderCache { get; }
         public Uri StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
             _logger.LogInformation($"Starting transcode: Uri={uri},VideoPreset={videoPreset},AudioPreset={audioPreset}");
-            if (!_videoPresets.ContainsKey(videoPreset)){
+            if (!_videoPresets.ContainsKey(videoPreset))
+            {
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ArgumentException("The specified video preset doesn't exist.");
             }
@@ -70,7 +71,7 @@ namespace Transcoder
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ArgumentException("The specified audio preset doesn't exist.");
             }
-        public IList<TranscoderCachingObject> TranscoderCache { get; }
+
 
 
             if (uri == null || string.IsNullOrWhiteSpace(uri.ToString()))
@@ -95,7 +96,7 @@ namespace Transcoder
                 $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd";
             try
             {
-                
+
                 ProcessFFmpeg(parameter, folderPath, cancellationTokenSource);
             }
             catch (Exception exception)
@@ -109,7 +110,6 @@ namespace Transcoder
             //APIManager gets the 240_out.m3u8 ->im xampp /htdocs/output_mpd - Hardcoded
             var outUri = $"https://{_config["hostname"]}/{folderName}/out.mpd";
             _logger.LogDebug($"Gracefully returning {outUri} for request for {uri} with VideoPreset {videoPreset} and AudioPreset {audioPreset}");
-        }
             var transcodedVideoUri = new Uri(outUri);
             lock (TranscoderCache)
             {
@@ -180,7 +180,7 @@ namespace Transcoder
                         logfile.WriteLine("KeepAlive Token invalidated, Process Suspended");
                         break;
                     }
-                    
+
                     while (reader.Peek() != -1)
                     {
                         var line = reader.ReadLine();
@@ -190,7 +190,7 @@ namespace Transcoder
                     logfile.Flush();
                     Thread.Sleep(250);
 
-                    if (!ffmpegProcess.HasExited||!reader.EndOfStream) continue;
+                    if (!ffmpegProcess.HasExited || !reader.EndOfStream) continue;
                     logfile.WriteLine("Process exited with code: " + ffmpegProcess.ExitCode);
                     _logger.LogInformation($"FFmpeg process in directory {path} exited with code {ffmpegProcess.ExitCode}");
                     ffmpegProcess.Dispose();
@@ -205,7 +205,8 @@ namespace Transcoder
                 {
                     cancellationTokenSource.Cancel();
                 }
-                catch (ObjectDisposedException) { 
+                catch (ObjectDisposedException)
+                {
                 }
             });
 
@@ -222,7 +223,7 @@ namespace Transcoder
             {
                 throw new FFmpegProcessException(ex, parameter, path, "Failed to start FFmpeg process");
             }
-            
+
             loggingTask.Start();
             //Pause the thread until we see the file pop up
             var expectedFile = Path.Combine(path, "out.mpd");
