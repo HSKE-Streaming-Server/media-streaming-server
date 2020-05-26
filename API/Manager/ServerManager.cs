@@ -18,7 +18,7 @@ namespace API.Manager
         private readonly IGrabber _grabber;
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
-        
+
         private static readonly TimeSpan _defaultTimespan = TimeSpan.FromMinutes(30);
         public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
         {
@@ -94,7 +94,7 @@ namespace API.Manager
             }
             if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
             {
-                var actualVideoPreset =_transcoder.GetAvailableVideoPresets().First().presetID;
+                var actualVideoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
                 _logger.LogWarning($"Replacing videoPreset {videoPreset} with {actualVideoPreset} because not found in transcoder");
                 videoPreset = actualVideoPreset;
             }
@@ -130,7 +130,8 @@ namespace API.Manager
 
         public void KeepAlive(KeepAliveRequest request)
         {
-            lock (TranscoderCache){
+            lock (TranscoderCache)
+            {
                 var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
                     item.AudioPresetID == request.AudioPreset &&
                     item.VideoPresetID == request.VideoPreset);
@@ -147,18 +148,32 @@ namespace API.Manager
 
                 while (true)
                 {
+                    
+                    //Locked for operations
                     lock (TranscoderCache)
                     {
-                        foreach (var video in TranscoderCache)
+                        if (TranscoderCache.Count == 0)
+                        continue;
+
+                        //Cant delete IEnumerable Entries while in for each
+                        var IterationList = new List<TranscoderCachingObject>();
+                        IterationList.InsertRange(0, TranscoderCache);
+
+                        foreach (var video in IterationList)
                         {
                             if ((DateTime.Now - video.KeepAliveTimeStamp) > TimeSpan.FromMinutes(1))
+                            {
+                                //Deactivate Token to stop Process
                                 video.CancellationTokenSource.Cancel();
+                            }
                             if (video.CancellationTokenSource.IsCancellationRequested)
                             {
+                                //Delete Entry in real Cache
                                 TranscoderCache.Remove(video);
                                 video.CancellationTokenSource.Dispose();
                             }
                         }
+                        IterationList = null;
                     }
                     Thread.Sleep(5000);
 

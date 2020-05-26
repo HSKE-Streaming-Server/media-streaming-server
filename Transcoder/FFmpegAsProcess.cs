@@ -27,6 +27,7 @@ namespace Transcoder
         public FFmpegAsProcess(ILogger<FFmpegAsProcess> logger)
         {
             _logger = logger;
+            TranscoderCache = new List<TranscoderCachingObject>();
 
             //Read config file
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
@@ -54,7 +55,6 @@ namespace Transcoder
 
             _logger.LogInformation($"{nameof(FFmpegAsProcess)} initialized");
 
-            TranscoderCache = new List<TranscoderCachingObject>();
         }
         public IList<TranscoderCachingObject> TranscoderCache { get; }
         public Uri StartProcess(Uri uri, int videoPreset, int audioPreset)
@@ -198,19 +198,21 @@ namespace Transcoder
                 }
                 logfile.Flush();
                 logfile.Dispose();
+                //Exception, if ffmpeg gets 404 response from input
                 if (!ffmpegProcess.HasExited)
                     _logger.LogInformation($"Closing running FFmpeg process in {path}");
                 ffmpegProcess.Close();
                 try
                 {
-                    cancellationTokenSource.Cancel();
+                    lock (TranscoderCache)
+                    {
+                        cancellationTokenSource.Cancel();
+                    }
                 }
                 catch (ObjectDisposedException)
                 {
                 }
             });
-
-
 
             try
             {
