@@ -135,7 +135,11 @@ namespace API.Manager
                 var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
                     item.AudioPresetID == request.AudioPreset &&
                     item.VideoPresetID == request.VideoPreset);
+                if(cacheObject != null)
+                {
                 cacheObject.KeepAliveTimeStamp = DateTime.Now;
+                }
+                //TODO: Response to Client? Keepalive Invalid, Video stopped to transcode
             }
 
         }
@@ -163,12 +167,14 @@ namespace API.Manager
                         {
                             if ((DateTime.Now - video.KeepAliveTimeStamp) > TimeSpan.FromMinutes(1))
                             {
+                                _logger.LogInformation($"Keepalive for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetID} and audioPreset {video.AudioPresetID} expired");
                                 //Deactivate Token to stop Process
                                 video.CancellationTokenSource.Cancel();
                             }
                             if (video.CancellationTokenSource.IsCancellationRequested)
                             {
                                 //Delete Entry in real Cache
+                                _logger.LogInformation($"Process for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetID} and audioPreset {video.AudioPresetID} removed from Cache");
                                 TranscoderCache.Remove(video);
                                 video.CancellationTokenSource.Dispose();
                             }

@@ -146,8 +146,10 @@ namespace API.Gateway
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult KeepAlive(KeepAliveRequest request)
         {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             _serverManager.KeepAlive(request);
-            throw new NotImplementedException();
+            return StatusCode(200);
+            //Todo adjust return
         }
     }
 }
