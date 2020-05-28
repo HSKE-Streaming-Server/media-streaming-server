@@ -84,7 +84,7 @@ namespace MediaInput
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), (string)entry[5]!=""?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
+                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), entry[5]!=System.DBNull.Value ?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
             }
         }
 
