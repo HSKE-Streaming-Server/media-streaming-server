@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using API.Model;
 using API.Model.Request;
 using MediaInput;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Ocsp;
 using Transcoder;
 
 namespace API.Manager
@@ -135,9 +131,9 @@ namespace API.Manager
                 var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
                     item.AudioPresetID == request.AudioPreset &&
                     item.VideoPresetID == request.VideoPreset);
-                if(cacheObject != null)
+                if (cacheObject != null)
                 {
-                cacheObject.KeepAliveTimeStamp = DateTime.Now;
+                    cacheObject.KeepAliveTimeStamp = DateTime.Now;
                 }
                 //TODO: Response to Client? Keepalive Invalid, Video stopped to transcode
             }
@@ -147,17 +143,17 @@ namespace API.Manager
         private Task CheckTranscodingCache()
         {
 
-            Task checkCache = new Task(() =>
+            Task checkCache = new Task(async () =>
             {
 
                 while (true)
                 {
-                    
+
                     //Locked for operations
                     lock (TranscoderCache)
                     {
                         if (TranscoderCache.Count == 0)
-                        continue;
+                            continue;
 
                         //Cant delete IEnumerable Entries while in for each
                         var IterationList = new List<TranscoderCachingObject>();
@@ -181,8 +177,8 @@ namespace API.Manager
                         }
                         IterationList = null;
                     }
-                    Thread.Sleep(5000);
-
+                    //Using Task.Delay instead of Thread.Sleep which is better for the Thread Pool
+                    await Task.Delay(5000);
                 }
             });
             return checkCache;
