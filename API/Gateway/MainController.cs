@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Asn1.Ess;
+using Org.BouncyCastle.Ocsp;
 using Transcoder;
 
 namespace API.Gateway
@@ -137,6 +138,18 @@ namespace API.Gateway
                 {"video", _serverManager.GetVideoPresets()},
                 {"audio", _serverManager.GetAudioPresets()}
             };*/
+        }
+
+        [HttpPost("keepalive")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public ActionResult KeepAlive(KeepAliveRequest request)
+        {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
+            _serverManager.KeepAlive(request);
+            return StatusCode(200);
+            //Todo adjust return
         }
     }
 }

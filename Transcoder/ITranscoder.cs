@@ -7,6 +7,11 @@ namespace Transcoder
     public interface ITranscoder
     {
         /// <summary>
+        /// Contains every Active Transcoding Process
+        /// </summary>
+        public IList<TranscoderCachingObject> TranscoderCache { get; }
+
+        /// <summary>
         /// Starts the transcoding process and returns the URI where the playlist file is located.
         /// </summary>
         /// <param name="uri">The URI where the content that is to be transcoded is located.</param>
