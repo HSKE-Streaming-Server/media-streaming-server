@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Transcoder;
+using ErrorMessage;
 
 namespace API
 {
@@ -27,7 +29,9 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().ConfigureApiBehaviorOptions(opt => {
+                opt.InvalidModelStateResponseFactory = (context => CustomErrorResponse(context));
+            });
             services.AddSingleton<ServerManager>();
             //Add transcoder and grabber as dependency injection so we can in turn inject the logger into them
             services.AddSingleton<FFmpegAsProcess>();
@@ -54,6 +58,15 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+        }
+
+        //Modelvalidation builds automatic Error responses. That's why we customize here our own response, that all error responses are build up the same way.
+        private BadRequestObjectResult CustomErrorResponse(ActionContext actionContext) {
+             return new BadRequestObjectResult(actionContext.ModelState  
+            .Where(modelError => modelError.Value.Errors.Count > 0)  
+            .Select(modelError => new Error {  
+                ErrorMessage = modelError.Value.Errors.FirstOrDefault().ErrorMessage  
+            }).First());
         }
     }
 }

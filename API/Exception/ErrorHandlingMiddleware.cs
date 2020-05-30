@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using APIExceptions;
 
 public class ErrorHandlingMiddleware
 {
@@ -32,10 +33,10 @@ public class ErrorHandlingMiddleware
     {
         var code = HttpStatusCode.InternalServerError; // 500 if unexpected
 
-        if      (ex is MyNotFoundException)     code = HttpStatusCode.NotFound;
-        else if (ex is MyUnauthorizedException) code = HttpStatusCode.Unauthorized;
-        else if (ex is MyException)             code = HttpStatusCode.BadRequest;
-        else if (ex is TunerNotAvailableException) code = HttpStatusCode.ServiceUnavailable;
+        if (ex is APINotFoundException) code = HttpStatusCode.NotFound;
+        else if (ex is APIUnauthorizedException) code = HttpStatusCode.Unauthorized;
+        else if (ex is APIBadRequestException) code = HttpStatusCode.BadRequest;
+        else if (ex is APITunerNotAvailableException) code = HttpStatusCode.ServiceUnavailable;
 
         var result = JsonConvert.SerializeObject(new { error = ex.Message });
         context.Response.ContentType = "application/json";

@@ -115,14 +115,11 @@ namespace API.Gateway
         }
 
         [HttpPost("keepalive")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult KeepAlive(KeepAliveRequest request)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             _serverManager.KeepAlive(request);
-            return StatusCode(200);
+            return Ok();
             //Todo adjust return
         }
     }
