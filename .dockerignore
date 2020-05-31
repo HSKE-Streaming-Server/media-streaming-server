@@ -1,0 +1,7 @@
+*/bin/*
+*/obj/*
+*/web/webroot/*
+.idea*
+.run*
+.vscode*
+*.drawio

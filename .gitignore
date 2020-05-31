@@ -1,6 +1,8 @@
 #Nlog ignore
 *nlog
 
+web/webroot/*
+
 ### C/C++ Ignores
 
 # Prerequisites
