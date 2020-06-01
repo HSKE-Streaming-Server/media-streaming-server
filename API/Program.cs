@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
@@ -19,7 +20,16 @@ namespace API
             try
             {
                 logger.Debug("Initializing main");
-                CreateHostBuilder(args).Build().Run();
+                var host = CreateHostBuilder(args).Build();
+
+                var config = host.Services.GetRequiredService<IConfiguration>();
+
+                foreach (var c in config.AsEnumerable())
+                {
+                    logger.Debug(c.Key + " = " + c.Value);
+                }
+                
+                host.Run();
             }
             //Log all exceptions that arise while starting the server
             catch (Exception ex)

@@ -1,6 +1,8 @@
 #Nlog ignore
 *nlog
 
+docker/web/webroot/*
+
 ### C/C++ Ignores
 
 # Prerequisites

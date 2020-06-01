@@ -1,0 +1,35 @@
+﻿{
+  "ApacheWebroot": "/webroot/",
+  "Hostname": "localhost",
+  "AudioPresets":
+  [
+    {
+      "Id": "1",
+      "Name": "Low",
+      "Description": "Low Quality AAC Audio",
+      "Bitrate": 32000,
+      "TranscoderArguments": "-c:a aac"
+    }
+  ],
+  "VideoPresets": 
+  [
+    {
+      "Id": "0",
+      "Name": "Good",
+      "Description": "High Quality Video",
+      "ResolutionX": 1920,
+      "ResolutionY": 1080,
+      "Bitrate": 1000000,
+      "TranscoderArguments": "-c:v libx264 -b:v:0 800k -b:v:1 300k -s:v:1 320x170 -profile:v:1 baseline"
+    },
+    {
+      "Id": "1",
+      "Name": "Low",
+      "Description": "Low Quality Video",
+      "ResolutionX": 720,
+      "ResolutionY": 480,
+      "Bitrate": 300000,
+      "TranscoderArguments": "-c:v libx265 -r:v 25 -s 720x480 -aspect 16:9 -crf 30 -maxrate 300k -bufsize 300k"
+    }
+  ]
+}

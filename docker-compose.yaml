@@ -1,0 +1,35 @@
+# docker-compose file for DEVELOPMENT of the media-streaming-server together with the media-streaming-client repo
+# this compose file is NOT intended to be deployed and used for actual usage
+
+
+version: "3.8"
+services:
+  # apache2 service
+  web:
+    build: ./docker/web
+    # port mappings are in the format "host:container"
+    ports:
+      - "80:80"
+      - "443:443"
+    # analogous to port mappings, volume mappings are in the format path_on_host:path_in_container
+    volumes:
+      - ./docker/web/webroot:/usr/local/apache2/htdocs
+      #- ./webconfig:/usr/local/apache2/conf
+
+  # MariaDB service (mysql)
+  db:
+    build: ./docker/db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpasswd
+      MYSQL_DATABASE: mediacontent
+    ports:
+      - "3306:3306"
+
+  # API Server
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./docker/web/webroot:/webroot
