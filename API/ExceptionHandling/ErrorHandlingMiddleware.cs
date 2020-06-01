@@ -38,6 +38,8 @@ public class ErrorHandlingMiddleware
         else if (ex is APIBadRequestException) code = HttpStatusCode.BadRequest;
         else if (ex is APITunerNotAvailableException) code = HttpStatusCode.ServiceUnavailable;
 
+
+
         var result = JsonConvert.SerializeObject(new { error = ex.Message });
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
