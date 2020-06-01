@@ -24,6 +24,8 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000;http://[::]:5000
 # Copy compiled files from the build environment into this context
 COPY --from=build-env /app/out .
+# Copy configuration files from ./docker/api
+COPY docker/api/. .
 EXPOSE 5000/tcp
 EXPOSE 5000/udp
 ENTRYPOINT ["dotnet", "API.dll"]

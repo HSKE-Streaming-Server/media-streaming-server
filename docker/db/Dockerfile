@@ -4,7 +4,7 @@
 FROM debian AS curl
 RUN apt-get update && apt-get install -y curl
 WORKDIR /curldata
-RUN curl https://gist.githubusercontent.com/niklasstich/6f6502d72e30044ed7d3d3e12fae5c2b/raw/8974bb0d491c755fd143245093ce6d0618bf2dff/MediaContentUpdated.sql > populate.sql
+RUN curl https://gist.githubusercontent.com/DominikWiesner/eae0105f8d881785f6539beba9b6eba0/raw/e6a83821563a2bb7b666f327ca02c50a6b60e738/mediacontentdb.sql > populate.sql
 
 FROM bitnami/mariadb
 #COPY --from=pullsql populate.sql ./populate.sql

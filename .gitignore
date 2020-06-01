@@ -1,7 +1,7 @@
 #Nlog ignore
 *nlog
 
-web/webroot/*
+docker/web/webroot/*
 
 ### C/C++ Ignores
 

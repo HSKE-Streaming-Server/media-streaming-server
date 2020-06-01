@@ -13,8 +13,6 @@
         <option name="sourceFilePath" value="docker-compose.yaml" />
       </settings>
     </deployment>
-    <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_docker-compose build" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
