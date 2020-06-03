@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using API.Manager;
 using API.Model;
 using API.Model.Request;
@@ -10,8 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.Ess;
-using Org.BouncyCastle.Ocsp;
 using Transcoder;
 
 namespace API.Gateway
@@ -19,8 +18,10 @@ namespace API.Gateway
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public struct PresetResponse
     {
-        public IEnumerable<VideoPreset> videoPresets { get; set; }
-        public IEnumerable<AudioPreset> audioPresets { get; set; }
+        [JsonPropertyName("videoPresets")]
+        public IEnumerable<VideoPreset> VideoPresets { get; set; }
+        [JsonPropertyName("audioPresets")]
+        public IEnumerable<AudioPreset> AudioPresets { get; set; }
     }
 
 
@@ -84,7 +85,7 @@ namespace API.Gateway
                 //ToList required because of an interface limitation of C#
                 return _serverManager.GetSources().ToList();
             }
-            catch (MySqlException mySqlException)
+            catch (MySqlException)
             {
                 return StatusCode(500);
             }
@@ -114,11 +115,11 @@ namespace API.Gateway
         public ActionResult<StreamResponse> PostStream(StreamRequest streamRequest)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            if (string.IsNullOrWhiteSpace(streamRequest.stream_id))
+            if (string.IsNullOrWhiteSpace(streamRequest.StreamId))
                 return BadRequest();
             //TODO: AccountManager.checkToken(token)
             
-            return _serverManager.GetStream(streamRequest.stream_id, streamRequest.Settings.VideoPresetId,
+            return _serverManager.GetStream(streamRequest.StreamId, streamRequest.Settings.VideoPresetId,
                 streamRequest.Settings.AudioPresetId);
         }
 
@@ -131,7 +132,7 @@ namespace API.Gateway
             //TODO: AccountManager.checkToken(token)
             return new PresetResponse
             {
-                audioPresets = _serverManager.GetAudioPresets(), videoPresets = _serverManager.GetVideoPresets()
+                AudioPresets = _serverManager.GetAudioPresets(), VideoPresets = _serverManager.GetVideoPresets()
             };
             /*return new Dictionary<string, IEnumerable<Preset>>
             {

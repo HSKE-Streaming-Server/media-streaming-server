@@ -1,14 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using Data;
 using Microsoft.Extensions.Configuration;
@@ -64,38 +58,32 @@ namespace MediaInput
             var freeSdtvPlaylist = _client.GetStreamAsync(freeSdtvuri).Result;
             var freeHdtvPlaylist = _client.GetStreamAsync(freeHdtvuri).Result;
 
-            Dictionary<string, ContentInformation> completeList = new Dictionary<string, ContentInformation>();
 
-            using (SHA1 cryptoProvider = new SHA1CryptoServiceProvider())
+            var radioList = M3UParser.ParsePlaylist(radioPlaylist).Select
+            (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
+                item.channelName, "radio", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
+
+            var sdtvList = M3UParser.ParsePlaylist(freeSdtvPlaylist).Select
+            (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
+                item.channelName, "television", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
+
+            var hdtvList = M3UParser.ParsePlaylist(freeHdtvPlaylist).Select
+            (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
+                item.channelName, "television", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
+
+
+            var completeList = radioList.ToDictionary(entry => entry.Id);
+
+            foreach (var entry in sdtvList)
             {
-                var radioList = M3UParser.ParsePlaylist(radioPlaylist).Select
-                (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
-                    item.channelName, "radio", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
-
-                var sdtvList = M3UParser.ParsePlaylist(freeSdtvPlaylist).Select
-                (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
-                    item.channelName, "television", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
-
-                var hdtvList = M3UParser.ParsePlaylist(freeHdtvPlaylist).Select
-                (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
-                    item.channelName, "television", true, true,new Uri(item.pictureUri), new Uri(item.contentUri)));
-
-
-                foreach (var entry in radioList)
-                {
-                    completeList.Add(entry.Id, entry);
-                }
-
-                foreach (var entry in sdtvList)
-                {
-                    completeList.Add(entry.Id, entry);
-                }
-
-                foreach (var entry in hdtvList)
-                {
-                    completeList.Add(entry.Id, entry);
-                }
+                completeList.Add(entry.Id, entry);
             }
+
+            foreach (var entry in hdtvList)
+            {
+                completeList.Add(entry.Id, entry);
+            }
+
 
             //now write all of this bollocks into the database, but only if it doesn't exist yet
             //TODO: actual database writes instead of writing to a file?
@@ -133,7 +121,9 @@ namespace MediaInput
             }
 
             var adapter = new MySqlDataAdapter {SelectCommand = new MySqlCommand("SELECT * FROM sundtekcontent", conn)};
-            var commandBuilder = new MySqlCommandBuilder(adapter);
+            // ReSharper disable once ObjectCreationAsStatement
+            //Has to stay like this so we can have the commands other than Select built
+            new MySqlCommandBuilder(adapter);
 
 
             var dataSet = PrepareDataSet(crawledContent);
