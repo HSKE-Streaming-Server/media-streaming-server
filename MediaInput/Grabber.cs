@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -16,7 +12,6 @@ namespace MediaInput
     //TODO: Figure out a mutex scheme together with the keepalive module of the API so we never try to open another tuner stream when we already have one running
     public class Grabber : IGrabber
     {
-        private DateTime _lastCacheTimestamp = DateTime.UnixEpoch;
         private IConfiguration Config { get; }
         private string SqlConnectionString { get; }
         private ILogger<Grabber> _logger;
@@ -85,7 +80,7 @@ namespace MediaInput
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), entry[5]!=System.DBNull.Value ?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
+                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), entry[5]!=DBNull.Value ?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
             }
         }
 

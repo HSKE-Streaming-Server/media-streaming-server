@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.Configuration; //for IConfiguration
-using Newtonsoft.Json; //for JsonConvert
+﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics; //for Process
+using System.Diagnostics;
 using System.IO;
-using System.Linq; //for StreamReader
-using System.Reflection.PortableExecutable;
-using System.Threading; //for Thread
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging; //for Task
+using Microsoft.Extensions.Logging;
 using APIExceptions;
 
 namespace Transcoder
@@ -135,7 +132,8 @@ namespace Transcoder
         /// </summary>
         /// <param name="parameter">Declare arguments and options.</param>
         /// <param name="path">The path in which the transcoded fragments shall be located.</param>
-        private Task ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
+        /// <param name="cancellationTokenSource"></param>
+        private void ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
         {
             //TODO - Threads (Nuget Zeitstempel)
 
@@ -235,7 +233,6 @@ namespace Transcoder
                 Thread.Sleep(50);
             } while (!File.Exists(expectedFile));
             _logger.LogTrace($"Expected file found at {expectedFile}");
-            return loggingTask;
         }
     }
 }

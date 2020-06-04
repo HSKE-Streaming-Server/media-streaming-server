@@ -1,12 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
 namespace API.Model.Request
 {
     public struct StreamRequest
     {
-        //[RequiredAttribute]
+        [RequiredAttribute]
         public string Token { get; set; }
         [RequiredAttribute]
-        public string stream_id { get; set; }
+        [JsonPropertyName("stream_id")]
+        public string StreamId { get; set; }
         [RequiredAttribute]
         public StreamSettings Settings { get; set; }
     }
