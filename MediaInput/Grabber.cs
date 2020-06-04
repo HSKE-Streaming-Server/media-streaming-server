@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using APIExceptions;
 
 namespace MediaInput
 {
@@ -49,7 +50,7 @@ namespace MediaInput
                 catch (MySqlException mySqlException)
                 {
                     _logger.LogError(mySqlException, "Failed to fill dataset from MySQL database");
-                    throw;
+                    throw new Exception("Internal DataBase Error.");
                 }
 
                 var rowCollection = dataset.Tables[0].Rows;
@@ -88,7 +89,7 @@ namespace MediaInput
             var content = GetAvailableContentInformation().Values.SelectMany(item => item);
             var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
             if(requestedContent==null)
-                throw new Exception("Content with specified contentId does not exist in database");
+                throw new APINotFoundException("Content with specified contentId does not exist in database");
             return new Tuple<Uri, bool>(requestedContent.ContentLocation, requestedContent.TunerIsSource);
         }
     }
