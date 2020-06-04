@@ -1,7 +1,10 @@
+
+
 #Nlog ignore
 *nlog
 
 docker/web/webroot/*
+*/.Dockerfile.swp*
 
 ### C/C++ Ignores
 
