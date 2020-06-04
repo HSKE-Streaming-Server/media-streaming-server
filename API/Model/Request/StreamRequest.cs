@@ -5,7 +5,7 @@ namespace API.Model.Request
 {
     public struct StreamRequest
     {
-        [RequiredAttribute]
+        //[RequiredAttribute]
         public string Token { get; set; }
         [RequiredAttribute]
         [JsonPropertyName("stream_id")]
