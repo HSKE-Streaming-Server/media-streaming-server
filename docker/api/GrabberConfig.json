@@ -1,0 +1,13 @@
+{
+    "SundtekServerAddress" : "localhost",
+    "SundtekServerPort" : "22000",
+    "SundtekRadioUri" : "/radio.m3u",
+    "SundtekSdtvUri" : "/freesdtv.m3u",
+    "SundtekHdtvUri" : "/freehdtv.m3u",
+    
+    "MySqlServerAddress" : "db",
+    "MySqlServerDatabase" : "mediacontent",
+    "MySqlServerTableName" : "mediacontent",
+    "MySqlServerUser" : "root",
+    "MySqlServerPassword" : "rootpasswd"
+}

@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -33,12 +33,11 @@ namespace Transcoder.Test
         [Test]
         public void StartProcessCorrect()
         {
-            var returnval =
-                _ffmpeg.StartProcess(
-                    new Uri(
-                        "http://localhost:22000/stream/ARD%2Dalpha"),
-                    1, 1);
+            _ffmpeg.StartProcess(
+                new Uri(
+                    "http://localhost:22000/stream/ARD%2Dalpha"),
+                1, 1);
             Thread.Sleep(60000);
         }
     }
-}
+}*/

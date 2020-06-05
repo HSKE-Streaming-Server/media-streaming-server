@@ -1,6 +1,5 @@
-using System.IO;
+/*using System.IO;
 using System.Linq;
-using MediaInput;
 using NUnit.Framework;
 
 namespace MediaInput.Test
@@ -37,4 +36,4 @@ namespace MediaInput.Test
         }
         //TODO: write same test for television playlists
     }
-}
+}*/

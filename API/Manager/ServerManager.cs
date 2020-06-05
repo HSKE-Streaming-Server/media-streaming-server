@@ -56,7 +56,7 @@ namespace API.Manager
         public bool CheckValidityOfToken(string token)
         {
             _logger.LogInformation($"Checking validity of token {token}");
-            RevalidateToken(token, _defaultTimespan);
+            RevalidateToken(token, DefaultTimespan);
             throw new NotImplementedException();
         }
 
@@ -102,15 +102,15 @@ namespace API.Manager
         {
             _logger.LogInformation($"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
             var streamResponse = _grabber.GetMediaStream(streamId);
-            if (_transcoder.GetAvailableAudioPresets().All(item => item.presetID != audioPreset))
+            if (_transcoder.GetAvailableAudioPresets().All(item => item.PresetId != audioPreset))
             {
-                var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().presetID;
+                var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().PresetId;
                 _logger.LogWarning($"Replacing audioPreset {audioPreset} with {actualAudioPreset} because not found in transcoder");
                 audioPreset = actualAudioPreset;
             }
-            if (_transcoder.GetAvailableVideoPresets().All(item => item.presetID != videoPreset))
+            if (_transcoder.GetAvailableVideoPresets().All(item => item.PresetId != videoPreset))
             {
-                var actualVideoPreset = _transcoder.GetAvailableVideoPresets().First().presetID;
+                var actualVideoPreset = _transcoder.GetAvailableVideoPresets().First().PresetId;
                 _logger.LogWarning($"Replacing videoPreset {videoPreset} with {actualVideoPreset} because not found in transcoder");
                 videoPreset = actualVideoPreset;
             }
@@ -118,7 +118,7 @@ namespace API.Manager
 
             lock (TranscoderCache)
             {
-                var cacheObject = TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetID == audioPreset && item.VideoPresetID == videoPreset);
+                var cacheObject = TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetId == audioPreset && item.VideoPresetId == videoPreset);
                 if (cacheObject != null)
                     ourUri = cacheObject.TranscodedVideoUri;
             }
@@ -149,8 +149,8 @@ namespace API.Manager
             lock (TranscoderCache)
             {
                 var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
-                    item.AudioPresetID == request.AudioPreset &&
-                    item.VideoPresetID == request.VideoPreset);
+                    item.AudioPresetId == request.AudioPreset &&
+                    item.VideoPresetId == request.VideoPreset);
                 if (cacheObject != null)
                 {
                     cacheObject.KeepAliveTimeStamp = DateTime.Now;
@@ -176,30 +176,29 @@ namespace API.Manager
                             continue;
 
                         //Cant delete IEnumerable Entries while in for each
-                        var IterationList = new List<TranscoderCachingObject>();
-                        IterationList.InsertRange(0, TranscoderCache);
+                        var iterationList = new List<TranscoderCachingObject>();
+                        iterationList.InsertRange(0, TranscoderCache);
 
-                        foreach (var video in IterationList)
+                        foreach (var video in iterationList)
                         {
                             if ((DateTime.Now - video.KeepAliveTimeStamp) > TimeSpan.FromMinutes(1))
                             {
-                                _logger.LogInformation($"Keepalive for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetID} and audioPreset {video.AudioPresetID} expired");
+                                _logger.LogInformation($"Keepalive for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} expired");
                                 //Deactivate Token to stop Process
                                 video.CancellationTokenSource.Cancel();
                             }
-                            if (video.CancellationTokenSource.IsCancellationRequested)
-                            {
-                                //Delete Entry in real Cache
-                                _logger.LogInformation($"Process for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetID} and audioPreset {video.AudioPresetID} removed from Cache");
-                                TranscoderCache.Remove(video);
-                                video.CancellationTokenSource.Dispose();
-                            }
+
+                            if (!video.CancellationTokenSource.IsCancellationRequested) continue;
+                            //Delete Entry in real Cache
+                            _logger.LogInformation($"Process for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} removed from Cache");
+                            TranscoderCache.Remove(video);
+                            video.CancellationTokenSource.Dispose();
                         }
-                        IterationList = null;
                     }
                     //Using Task.Delay instead of Thread.Sleep which is better for the Thread Pool
                     await Task.Delay(5000);
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
             return checkCache;
         }

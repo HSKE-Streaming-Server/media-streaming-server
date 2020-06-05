@@ -1,15 +1,13 @@
-﻿using Microsoft.Extensions.Configuration; //for IConfiguration
-using Newtonsoft.Json; //for JsonConvert
+﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics; //for Process
+using System.Diagnostics;
 using System.IO;
-using System.Linq; //for StreamReader
-using System.Reflection.PortableExecutable;
-using System.Threading; //for Thread
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging; //for Task
+using Microsoft.Extensions.Logging;
+using APIExceptions;
 
 namespace Transcoder
 {
@@ -63,13 +61,13 @@ namespace Transcoder
             if (!_videoPresets.ContainsKey(videoPreset))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
-                throw new ArgumentException("The specified video preset doesn't exist.");
+                throw new APINotFoundException("The specified video preset doesn't exist.");
             }
 
             if (!_audioPresets.ContainsKey(audioPreset))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
-                throw new ArgumentException("The specified audio preset doesn't exist.");
+                throw new APINotFoundException("The specified audio preset doesn't exist.");
             }
 
 
@@ -77,7 +75,7 @@ namespace Transcoder
             if (uri == null || string.IsNullOrWhiteSpace(uri.ToString()))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(uri)} is null, empty or whitespace");
-                throw new ArgumentNullException(nameof(uri), "Uri cannot be null or empty.");
+                throw new APIBadRequestException("Uri cannot be null or empty.");
             }
 
             var timestamp = DateTime.Now;
@@ -102,7 +100,7 @@ namespace Transcoder
             catch (Exception exception)
             {
                 _logger.LogError(exception, $"Failed to start FFmpeg process with parameters: {parameter} in {folderPath}");
-                throw;
+                throw new Exception("Internal FFmpeg Error");
             }
             //ProcessFFmpeg("ffmpeg -i \"https://zdf-hls-01.akamaized.net/hls/live/2002460/de/6225f4cab378772631347dd27372ea68/5/5.m3u8\" -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 \"output/240_out.m3u8\"");
 
@@ -134,7 +132,8 @@ namespace Transcoder
         /// </summary>
         /// <param name="parameter">Declare arguments and options.</param>
         /// <param name="path">The path in which the transcoded fragments shall be located.</param>
-        private Task ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
+        /// <param name="cancellationTokenSource"></param>
+        private void ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
         {
             //TODO - Threads (Nuget Zeitstempel)
 
@@ -234,7 +233,6 @@ namespace Transcoder
                 Thread.Sleep(50);
             } while (!File.Exists(expectedFile));
             _logger.LogTrace($"Expected file found at {expectedFile}");
-            return loggingTask;
         }
     }
 }
