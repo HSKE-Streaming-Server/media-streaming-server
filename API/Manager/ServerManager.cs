@@ -36,16 +36,16 @@ namespace API.Manager
         private IList<TranscoderCachingObject> TranscoderCache { get; set; }
 
 
-        public string Login(Account account)
+        public LoginResponse Login(Account account)
         {
-
-            _loginDbHandler.CreateToken(account);
-           
-            //in der Datenbank nachschauen ob daten valid sind und wenn ja, dann dictonary eintrag mit aktuellem timestamp erstellen
-
-
-            return "was geht ab";
-
+            return new LoginResponse()
+            {
+                Success = true,
+                Userdata = new UserDataStruct()
+                {
+                    Token = _loginDbHandler.CreateToken(account)
+                }
+            };
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace API.Manager
         public bool CheckValidityOfToken(string token)
         {
             _logger.LogInformation($"Checking validity of token {token}");
-            RevalidateToken(token, DefaultTimespan);
+            //RevalidateToken(token);
             throw new NotImplementedException();
         }
 

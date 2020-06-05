@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Text.Json.Serialization;
 using API.Manager;
 using API.Model;
 using API.Model.Request;
+using APIExceptions;
 using MediaInput;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -52,12 +54,22 @@ namespace API.Gateway
         }
 
         [HttpPost("login")]
-        public JsonResult PostLogin(Account account)
+        public ActionResult<LoginResponse> PostLogin(Account account)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             _serverManager.Login(account);
             //TODO: check login credentials, if bad return 400
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            //try
+            //{
+                return _serverManager.Login(account);
+            //}
+            //catch (APIBadRequestException ex)
+            //{
+                //return new string[] { "400" }; //TODO: richtig implementieren
+
+            //}//TODO: wusste nicht genau
+
         }
 
         [HttpPost("logout")]
