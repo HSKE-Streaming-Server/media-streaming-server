@@ -24,6 +24,7 @@ namespace MediaInput
             _logger = logger;
             
             Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
+
             SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
                 $"Database={Config["MySqlServerDatabase"]};" +
                 $"Uid={Config["MySqlServerUser"]};" +
@@ -90,6 +91,7 @@ namespace MediaInput
 
         public Tuple<Uri, bool> GetMediaStream(string contentId)
         {
+            //TODO: MySQL Query where ID = "..."
             var content = GetAvailableContentInformation().Values.SelectMany(item => item);
             var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
             if(requestedContent==null)

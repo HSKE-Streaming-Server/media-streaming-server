@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Login;
 using API.Manager;
 using MediaInput;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,7 @@ namespace API
             //Add transcoder and grabber as dependency injection so we can in turn inject the logger into them
             services.AddSingleton<FFmpegAsProcess>();
             services.AddSingleton<Grabber>();
+            services.AddSingleton<LoginDbHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

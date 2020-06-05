@@ -1,8 +1,7 @@
 ﻿{
-  "ApacheWebroot": "/var/www/html/",
+  "ApacheWebroot": "C:\\xampp\\htdocs",
   "Hostname": "localhost",
-  "AudioPresets":
-  [
+  "AudioPresets": [
     {
       "Id": "1",
       "Name": "Low",
@@ -11,8 +10,7 @@
       "TranscoderArguments": "-c:a aac"
     }
   ],
-  "VideoPresets": 
-  [
+  "VideoPresets": [
     {
       "Id": "0",
       "Name": "Good",

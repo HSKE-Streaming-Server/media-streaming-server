@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Model;
 using API.Model.Request;
+using API.Login;
 using MediaInput;
 using Microsoft.Extensions.Logging;
 using Transcoder;
-
 namespace API.Manager
 {
     public class ServerManager
@@ -14,19 +15,38 @@ namespace API.Manager
         private readonly IGrabber _grabber;
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
+        private readonly LoginDbHandler _loginDbHandler;
 
-        private static readonly TimeSpan _defaultTimespan = TimeSpan.FromMinutes(30);
-        public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
+        private readonly Dictionary<string, (string, DateTime)> _token; //string 1 = token, string 2 = username, Datime = timestamp of when the token was created/valdiated
+
+        public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder, LoginDbHandler loginDbHandler)
         {
+            _loginDbHandler = loginDbHandler;
             _grabber = grabber;
             _transcoder = transcoder;
             _logger = logger;
+
+            _token = new Dictionary<string, (string, DateTime)>(); 
+
             TranscoderCache = _transcoder.TranscoderCache;
             CheckTranscodingCache().Start();
             _logger.LogInformation($"{nameof(ServerManager)} initialized");
         }
 
         private IList<TranscoderCachingObject> TranscoderCache { get; set; }
+
+
+        public string Login(Account account)
+        {
+
+            _loginDbHandler.CreateToken(account);
+           
+            //in der Datenbank nachschauen ob daten valid sind und wenn ja, dann dictonary eintrag mit aktuellem timestamp erstellen
+
+
+            return "was geht ab";
+
+        }
 
         /// <summary>
         /// Checks whether or not a token is still valid for use and automatically revalidates it, if it is still valid.

@@ -57,6 +57,7 @@ namespace API.Gateway
         public JsonResult PostLogin(Account account)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
+            _serverManager.Login(account);
             //TODO: check login credentials, if bad return 400
             throw new NotImplementedException();
         }
