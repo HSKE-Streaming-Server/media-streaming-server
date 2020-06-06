@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Model;
 using API.Model.Request;
-using API.Login;
 using API.Model.Response;
 using MediaInput;
 using Microsoft.Extensions.Logging;
@@ -17,13 +16,10 @@ namespace API.Manager
         private readonly IGrabber _grabber;
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
-        private readonly LoginDbHandler _loginDbHandler;
 
 
-        public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder,
-            LoginDbHandler loginDbHandler)
+        public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
         {
-            _loginDbHandler = loginDbHandler;
             _grabber = grabber;
             _transcoder = transcoder;
             _logger = logger;

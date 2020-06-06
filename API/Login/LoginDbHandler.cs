@@ -72,6 +72,7 @@ namespace API.Login
 
                     var newToken = Guid.NewGuid().ToString();
                     _tokenDictionary.Add(newToken, new AuthTokenInformation(account.Username));
+                    dbConnection.Close();
                     return newToken;
                 }
             }
@@ -82,11 +83,16 @@ namespace API.Login
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <exception cref="APIUnauthorizedException"></exception>
         public void LogoutUser(string token)
         {
             if(!_tokenDictionary.ContainsKey(token))
                 throw new APIUnauthorizedException("The supplied token is unknown.");
-            
+            _tokenDictionary.Remove(token);
         }
 
         /// <summary>
@@ -97,7 +103,7 @@ namespace API.Login
         /// <exception cref="APIUnauthorizedException">The <paramref name="token"/> was either not found or stale.</exception>
         public string CheckToken(string token)
         {
-            if (!_tokenDictionary.ContainsKey(token)) 
+            if (!_tokenDictionary.ContainsKey(token))
                 throw new APIUnauthorizedException("The supplied token is unknown.");
             if (_tokenDictionary[token].LastAccess.Add(_defaultTimeSpan) > DateTime.Now)
             {
