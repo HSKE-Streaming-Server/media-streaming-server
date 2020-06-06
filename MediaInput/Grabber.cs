@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using APIExceptions;
+using Data.Exceptions;
 
 namespace MediaInput
 {
@@ -91,7 +91,7 @@ namespace MediaInput
             var content = GetAvailableContentInformation().Values.SelectMany(item => item);
             var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
             if(requestedContent==null)
-                throw new APINotFoundException("Content with specified contentId does not exist in database");
+                throw new ApiNotFoundException("Content with specified contentId does not exist in database");
             return new Tuple<Uri, bool>(requestedContent.ContentLocation, requestedContent.TunerIsSource);
         }
     }

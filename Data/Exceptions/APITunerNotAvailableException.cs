@@ -1,22 +1,22 @@
 using System;
 
-namespace APIExceptions
+namespace Data.Exceptions
 {
     [Serializable]
-    public class APITunerNotAvailableException : Exception
+    public class ApiTunerNotAvailableException : Exception
     {
 
-        public APITunerNotAvailableException()
+        public ApiTunerNotAvailableException()
         {
 
         }
 
-        public APITunerNotAvailableException(string message) : base(message)
+        public ApiTunerNotAvailableException(string message) : base(message)
         {
 
         }
 
-        public APITunerNotAvailableException(string message, Exception inner) : base(message, inner)
+        public ApiTunerNotAvailableException(string message, Exception inner) : base(message, inner)
         {
 
         }

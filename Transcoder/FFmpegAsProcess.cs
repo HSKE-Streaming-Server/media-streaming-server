@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using APIExceptions;
+using Data.Exceptions;
 
 namespace Transcoder
 {
@@ -61,13 +61,13 @@ namespace Transcoder
             if (!_videoPresets.ContainsKey(videoPreset))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
-                throw new APINotFoundException("The specified video preset doesn't exist.");
+                throw new ApiNotFoundException("The specified video preset doesn't exist.");
             }
 
             if (!_audioPresets.ContainsKey(audioPreset))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
-                throw new APINotFoundException("The specified audio preset doesn't exist.");
+                throw new ApiNotFoundException("The specified audio preset doesn't exist.");
             }
 
 
@@ -75,7 +75,7 @@ namespace Transcoder
             if (uri == null || string.IsNullOrWhiteSpace(uri.ToString()))
             {
                 _logger.LogTrace($"Throwing argument exception because {nameof(uri)} is null, empty or whitespace");
-                throw new APIBadRequestException("Uri cannot be null or empty.");
+                throw new ApiBadRequestException("Uri cannot be null or empty.");
             }
 
             var timestamp = DateTime.Now;

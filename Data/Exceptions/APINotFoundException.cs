@@ -1,22 +1,22 @@
 using System;
 
-namespace APIExceptions
+namespace Data.Exceptions
 {
     [Serializable]
-    public class APINotFoundException : Exception
+    public class ApiNotFoundException : Exception
     {
 
-        public APINotFoundException()
+        public ApiNotFoundException()
         {
 
         }
 
-        public APINotFoundException(string message) : base(message)
+        public ApiNotFoundException(string message) : base(message)
         {
 
         }
 
-        public APINotFoundException(string message, Exception inner) : base(message, inner)
+        public ApiNotFoundException(string message, Exception inner) : base(message, inner)
         {
 
         }

@@ -11,10 +11,8 @@ using API.Model.Request;
 using API.Model.Response;
 using APIExceptions;
 using MediaInput;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using Transcoder;
 
 namespace API.Gateway

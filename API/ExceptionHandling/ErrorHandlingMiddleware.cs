@@ -1,48 +1,51 @@
-using System.Net;
 using System;
-using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Data.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using APIExceptions;
+using Newtonsoft.Json;
 
-public class ErrorHandlingMiddleware
+namespace API.ExceptionHandling
 {
-    private readonly RequestDelegate next;
-    private readonly ILogger<ErrorHandlingMiddleware> _logger;
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    public class ErrorHandlingMiddleware
     {
-        this.next = next;
-        this._logger = logger;
-    }
-
-    public async Task Invoke(HttpContext context /* other dependencies */)
-    {
-        try
+        private readonly RequestDelegate _next;
+        private readonly ILogger<ErrorHandlingMiddleware> _logger;
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
         {
-            await next(context);
+            this._next = next;
+            this._logger = logger;
         }
-        catch (Exception ex)
+
+        public async Task Invoke(HttpContext context /* other dependencies */)
         {
-            _logger.LogError(ex, "Failure: ");
-            await HandleExceptionAsync(context, ex);
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failure: ");
+                await HandleExceptionAsync(context, ex);
+            }
         }
-    }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception ex)
-    {
-        var code = ex switch
+        private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            APINotFoundException _ => HttpStatusCode.NotFound,
-            APIUnauthorizedException _ => HttpStatusCode.Unauthorized,
-            APIBadRequestException _ => HttpStatusCode.BadRequest,
-            APITunerNotAvailableException _ => HttpStatusCode.ServiceUnavailable,
-            _ => HttpStatusCode.InternalServerError
-        };
+            var code = ex switch
+            {
+                ApiNotFoundException _ => HttpStatusCode.NotFound,
+                ApiUnauthorizedException _ => HttpStatusCode.Unauthorized,
+                ApiBadRequestException _ => HttpStatusCode.BadRequest,
+                ApiTunerNotAvailableException _ => HttpStatusCode.ServiceUnavailable,
+                _ => HttpStatusCode.InternalServerError
+            };
 
-        var result = JsonConvert.SerializeObject(new { error = ex.Message });
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)code;
-        return context.Response.WriteAsync(result);
+            var result = JsonConvert.SerializeObject(new { error = ex.Message });
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)code;
+            return context.Response.WriteAsync(result);
+        }
     }
 }

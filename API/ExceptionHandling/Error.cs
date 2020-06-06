@@ -1,10 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace ErrorMessage
+namespace API.ExceptionHandling
 {
     public class Error
     {
         [JsonPropertyName("error")]
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string ErrorMessage { get; set; }
     }
 }
