@@ -4,9 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text.Json.Serialization;
+using API.Login;
 using API.Manager;
 using API.Model;
 using API.Model.Request;
+using API.Model.Response;
 using APIExceptions;
 using MediaInput;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +34,7 @@ namespace API.Gateway
     public class MainController : Controller
     {
         private readonly ServerManager _serverManager;
+        private readonly LoginDbHandler _authHandler;
         private readonly ILogger<MainController> _logger;
 
         public MainController(ServerManager serverManager, ILogger<MainController> logger)
@@ -46,47 +49,34 @@ namespace API.Gateway
 
         //Return whether or not token is valid and if it is, return the username of the user it belongs to.
         [HttpPost("authenticate")]
-        public JsonResult PostAuthenticate(string token)
+        public ActionResult<AuthenticateResponse> PostAuthenticate(string token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            throw new NotImplementedException();
-            //return Json(_serverManager.Authenticate(account));
+            var username = _authHandler.CheckToken(token);
+            return new AuthenticateResponse(username);
         }
 
         [HttpPost("login")]
         public ActionResult<LoginResponse> PostLogin(Account account)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            _serverManager.Login(account);
-            //TODO: check login credentials, if bad return 400
-            //throw new NotImplementedException();
-            //try
-            //{
-                return _serverManager.Login(account);
-            //}
-            //catch (APIBadRequestException ex)
-            //{
-                //return new string[] { "400" }; //TODO: richtig implementieren
-
-            //}//TODO: wusste nicht genau
-
+            var token = _authHandler.LoginUser(account);
+            return new LoginResponse(token);
         }
 
         [HttpPost("logout")]
-        public JsonResult PostLogout(string token)
+        public ActionResult<LogoutResponse> PostLogout(string token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            //When would you ever return false to this? Maybe when the token didn't exist in the first place?
-            throw new NotImplementedException();
+            _authHandler.LogoutUser(token);
+            return new LogoutResponse(true);
         }
 
         [HttpPost("categories")]
         public ActionResult<IEnumerable<string>> PostCategories(string token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            //TODO: AccountManager.checkToken(token)
-            //TODO: impl
-
+            _authHandler.CheckToken(token);
             //ToList required because of an interface limitation of C#
             return _serverManager.GetSources().ToList();
         }
@@ -95,10 +85,7 @@ namespace API.Gateway
         public ActionResult<IEnumerable<ContentInformation>> PostMedia(MediaRequest request)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-
-            //TODO: AccountManager.checkToken(token)
-            //var tok = Request.Form["token"];
-
+            _authHandler.CheckToken(request.Token);
             return _serverManager.GetMedia(request.Category).ToList();
         }
 
@@ -106,8 +93,7 @@ namespace API.Gateway
         public ActionResult<StreamResponse> PostStream(StreamRequest streamRequest)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            //TODO: AccountManager.checkToken(token)
-            
+            _authHandler.CheckToken(streamRequest.Token);
             return _serverManager.GetStream(streamRequest.StreamId, streamRequest.Settings.VideoPresetId,
                 streamRequest.Settings.AudioPresetId);
         }
@@ -116,7 +102,7 @@ namespace API.Gateway
         public PresetResponse PostPresets(string token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            //TODO: AccountManager.checkToken(token)
+            _authHandler.CheckToken(token);
             return new PresetResponse
             {
                 AudioPresets = _serverManager.GetAudioPresets(), VideoPresets = _serverManager.GetVideoPresets()
@@ -132,6 +118,7 @@ namespace API.Gateway
         public ActionResult KeepAlive(KeepAliveRequest request)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
+            _authHandler.CheckToken(request.Token);
             _serverManager.KeepAlive(request);
             return Ok();
             //Todo adjust return
