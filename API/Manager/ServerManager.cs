@@ -157,5 +157,10 @@ namespace API.Manager
             });
             return checkCache;
         }
+
+        public ContentInformation GetDetail(DetailRequest request)
+        {
+            return _grabber.GetDetail(request.StreamId);
+        }
     }
 }
