@@ -1,13 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Model;
-using MediaInput;
 using MySql.Data.MySqlClient;
-using System.Data;
-using APIExceptions;
+using Data.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace API.Login
@@ -39,7 +35,7 @@ namespace API.Login
         /// <param name="account">The user supplied credentials</param>
         /// <returns>The newly created token.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="account"/> is <c>null</c>.</exception>
-        /// <exception cref="APIBadRequestException"><paramref name="account"/> was not found in the database.</exception>
+        /// <exception cref="ApiBadRequestException"><paramref name="account"/> was not found in the database.</exception>
         public string LoginUser(Account account)
         {
             if (account == null)
@@ -65,7 +61,7 @@ namespace API.Login
 
                     if (!reader.HasRows)
                     {
-                        var ex = new APIBadRequestException("Username or password invalid.");
+                        var ex = new ApiBadRequestException("Username or password invalid.");
                         _logger.LogTrace(ex, ex.Message);
                         throw ex;
                     }
@@ -84,14 +80,17 @@ namespace API.Login
         }
 
         /// <summary>
-        /// 
+        /// Logs out a user by removing the supplied token from our list.
         /// </summary>
-        /// <param name="token"></param>
-        /// <exception cref="APIUnauthorizedException"></exception>
+        /// <param name="token">The token thats to be invalidated.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="token"/> was null or whitespace only.</exception>
+        /// <exception cref="ApiUnauthorizedException">The <paramref name="token"/> was not found.</exception>
         public void LogoutUser(string token)
         {
+            if(string.IsNullOrWhiteSpace(token))
+                throw new ArgumentNullException(nameof(token), "Token can't be null or whitespace only.");
             if(!_tokenDictionary.ContainsKey(token))
-                throw new APIUnauthorizedException("The supplied token is unknown.");
+                throw new ApiUnauthorizedException("The supplied token is unknown.");
             _tokenDictionary.Remove(token);
         }
 
@@ -100,11 +99,11 @@ namespace API.Login
         /// </summary>
         /// <param name="token">The token to be checked.</param>
         /// <returns>The username that the <paramref name="token"/> belongs to.</returns>
-        /// <exception cref="APIUnauthorizedException">The <paramref name="token"/> was either not found or stale.</exception>
+        /// <exception cref="ApiUnauthorizedException">The <paramref name="token"/> was either not found or stale.</exception>
         public string CheckToken(string token)
         {
             if (!_tokenDictionary.ContainsKey(token))
-                throw new APIUnauthorizedException("The supplied token is unknown.");
+                throw new ApiUnauthorizedException("The supplied token is unknown.");
             if (_tokenDictionary[token].LastAccess.Add(_defaultTimeSpan) > DateTime.Now)
             {
                 var authTokenInformation = _tokenDictionary[token];
@@ -113,7 +112,7 @@ namespace API.Login
             }
 
             _tokenDictionary.Remove(token);
-            throw new APIUnauthorizedException("The supplied token was stale.");
+            throw new ApiUnauthorizedException("The supplied token was stale.");
         }
     }
 }

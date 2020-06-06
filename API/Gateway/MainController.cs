@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net;
 using System.Text.Json.Serialization;
 using API.Login;
 using API.Manager;
 using API.Model;
 using API.Model.Request;
 using API.Model.Response;
-using APIExceptions;
 using MediaInput;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -35,12 +32,13 @@ namespace API.Gateway
         private readonly LoginDbHandler _authHandler;
         private readonly ILogger<MainController> _logger;
 
-        public MainController(ServerManager serverManager, ILogger<MainController> logger)
+        public MainController(ServerManager serverManager, ILogger<MainController> logger, LoginDbHandler authHandler)
         {
             //This constructor is called for every request. Therefore, keep it slim
             _serverManager = serverManager;
             //Save injected logger
             _logger = logger;
+            _authHandler = authHandler;
             _logger.LogTrace($"{nameof(MainController)} initialized");
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using API.Model;
 using API.Model.Request;
 using API.Model.Response;
 using MediaInput;
@@ -29,42 +28,6 @@ namespace API.Manager
         }
 
         private IList<TranscoderCachingObject> TranscoderCache { get; set; }
-
-        /// <summary>
-        /// Checks whether or not a token is still valid for use and automatically revalidates it, if it is still valid.
-        /// </summary>
-        /// <param name="token">The token that is to be checked.</param>
-        /// <returns>Whether or not the token is valid.</returns>
-        public bool CheckValidityOfToken(string token)
-        {
-            _logger.LogInformation($"Checking validity of token {token}");
-            //RevalidateToken(token);
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Revalidates a token for a certain period.
-        /// </summary>
-        /// <param name="token">The token that is to be revalidated.</param>
-        /// <param name="validityPeriod">The period the token should be revalidated for</param>
-        private void RevalidateToken(string token, TimeSpan validityPeriod)
-        {
-            _logger.LogInformation($"Revalidating token {token} for {validityPeriod:g}");
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get the username for a supplied token.
-        /// </summary>
-        /// <param name="token">The token that was supplied in the request.</param>
-        /// <returns>The username of the user account this token currently belongs to.</returns>
-        /// <exception cref="KeyNotFoundException">The token was either not found or is invalid.</exception>
-        public string GetUsernameForToken(string token)
-        {
-            _logger.LogInformation($"Finding user for token {token}");
-            //TODO: check account, create Token, ...
-            throw new NotImplementedException();
-        }
 
         //Returns all the "categories" or media library names, we should maybe refactor that name
         public IEnumerable<String> GetSources()
