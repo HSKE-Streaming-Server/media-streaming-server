@@ -1,22 +1,22 @@
 using System;
 
-namespace APIExceptions
+namespace Data.Exceptions
 {
     [Serializable]
-    public class APIUnauthorizedException : Exception
+    public class ApiUnauthorizedException : Exception
     {
 
-        public APIUnauthorizedException()
+        public ApiUnauthorizedException()
         {
 
         }
 
-        public APIUnauthorizedException(string message) : base(message)
+        public ApiUnauthorizedException(string message) : base(message)
         {
 
         }
 
-        public APIUnauthorizedException(string message, Exception inner) : base(message, inner)
+        public ApiUnauthorizedException(string message, Exception inner) : base(message, inner)
         {
 
         }

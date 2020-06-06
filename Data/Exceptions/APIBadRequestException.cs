@@ -1,21 +1,21 @@
 using System;
 
-namespace APIExceptions
+namespace Data.Exceptions
 {
     [Serializable]
-    public class APIBadRequestException : Exception
+    public class ApiBadRequestException : Exception
     {
-        public APIBadRequestException()
+        public ApiBadRequestException()
         {
 
         }
 
-        public APIBadRequestException(string message) : base(message)
+        public ApiBadRequestException(string message) : base(message)
         {
 
         }
 
-        public APIBadRequestException(string message, Exception inner) : base(message, inner)
+        public ApiBadRequestException(string message, Exception inner) : base(message, inner)
         {
 
         }

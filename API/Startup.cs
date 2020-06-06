@@ -1,4 +1,5 @@
 using System.Linq;
+using API.ExceptionHandling;
 using API.Manager;
 using MediaInput;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Transcoder;
-using ErrorMessage;
 
 namespace API
 {
@@ -24,7 +24,7 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().ConfigureApiBehaviorOptions(opt => {
-                opt.InvalidModelStateResponseFactory = (context => CustomErrorResponse(context));
+                opt.InvalidModelStateResponseFactory = (CustomErrorResponse);
             });
             services.AddSingleton<ServerManager>();
             //Add transcoder and grabber as dependency injection so we can in turn inject the logger into them
@@ -59,7 +59,7 @@ namespace API
              return new BadRequestObjectResult(actionContext.ModelState  
             .Where(modelError => modelError.Value.Errors.Count > 0)  
             .Select(modelError => new Error {  
-                ErrorMessage = modelError.Value.Errors.FirstOrDefault().ErrorMessage  
+                ErrorMessage = modelError.Value.Errors.FirstOrDefault()?.ErrorMessage  
             }).First());
         }
     }
