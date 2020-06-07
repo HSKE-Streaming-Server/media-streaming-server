@@ -5,9 +5,9 @@
   "SundtekSdtvUri": "/freesdtv.m3u",
   "SundtekHdtvUri": "/freehdtv.m3u",
 
-  "MySqlServerAddress": "localhost",
+  "MySqlServerAddress": "db",
   "MySqlServerDatabase": "mediacontent",
   "MySqlServerTableName": "mediacontent",
   "MySqlServerUser": "root",
-  "MySqlServerPassword": "ap8Vj9=%8+].+pEahVDK"
+  "MySqlServerPassword": "rootpasswd"
 }
