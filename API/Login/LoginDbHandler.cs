@@ -51,7 +51,7 @@ namespace API.Login
                     dbConnection.Open();
                     var selectCommand =
                         new MySqlCommand(
-                            $"SELECT count(1) FROM login WHERE BENUTZERNAME =@username AND PASSWORT =@password",
+                            $"SELECT 1 FROM login WHERE BENUTZERNAME =@username AND PASSWORT =@password",
                             dbConnection);
                     //selectCommand.Prepare();
                     selectCommand.Parameters.AddWithValue("@username", account.Username);
