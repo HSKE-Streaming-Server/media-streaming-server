@@ -9,7 +9,7 @@ namespace API.Model.Response
             Success = true;
             Userdata = new TokenStruct {Token = token};
         }
-        [JsonPropertyName("succes")]
+        [JsonPropertyName("success")]
         public bool Success { get; }
 
         [JsonPropertyName("userdata")]
