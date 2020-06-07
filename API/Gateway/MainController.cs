@@ -45,10 +45,10 @@ namespace API.Gateway
 
         //Return whether or not token is valid and if it is, return the username of the user it belongs to.
         [HttpPost("authenticate")]
-        public ActionResult<AuthenticateResponse> PostAuthenticate(string token)
+        public ActionResult<AuthenticateResponse> PostAuthenticate(TokenOnlyRequest token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            var username = _authHandler.CheckToken(token);
+            var username = _authHandler.CheckToken(token.Token);
             return new AuthenticateResponse(username);
         }
 
@@ -61,18 +61,18 @@ namespace API.Gateway
         }
 
         [HttpPost("logout")]
-        public ActionResult<LogoutResponse> PostLogout(string token)
+        public ActionResult<LogoutResponse> PostLogout(TokenOnlyRequest token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            _authHandler.LogoutUser(token);
+            _authHandler.LogoutUser(token.Token);
             return new LogoutResponse(true);
         }
 
         [HttpPost("categories")]
-        public ActionResult<IEnumerable<string>> PostCategories(string token)
+        public ActionResult<IEnumerable<string>> PostCategories(TokenOnlyRequest token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            _authHandler.CheckToken(token);
+            _authHandler.CheckToken(token.Token);
             //ToList required because of an interface limitation of C#
             return _serverManager.GetSources().ToList();
         }
@@ -95,10 +95,10 @@ namespace API.Gateway
         }
 
         [HttpPost("presets")]
-        public PresetResponse PostPresets(string token)
+        public PresetResponse PostPresets(TokenOnlyRequest token)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
-            _authHandler.CheckToken(token);
+            _authHandler.CheckToken(token.Token);
             return new PresetResponse
             {
                 AudioPresets = _serverManager.GetAudioPresets(), VideoPresets = _serverManager.GetVideoPresets()
