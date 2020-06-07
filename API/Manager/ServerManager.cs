@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Model.Request;
+using API.Model.Response;
 using MediaInput;
 using Microsoft.Extensions.Logging;
 using Transcoder;
@@ -15,7 +16,7 @@ namespace API.Manager
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
 
-        private static readonly TimeSpan DefaultTimespan = TimeSpan.FromMinutes(30);
+
         public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
         {
             _grabber = grabber;
@@ -28,49 +29,13 @@ namespace API.Manager
 
         private IList<TranscoderCachingObject> TranscoderCache { get; set; }
 
-        /// <summary>
-        /// Checks whether or not a token is still valid for use and automatically revalidates it, if it is still valid.
-        /// </summary>
-        /// <param name="token">The token that is to be checked.</param>
-        /// <returns>Whether or not the token is valid.</returns>
-        public bool CheckValidityOfToken(string token)
-        {
-            _logger.LogInformation($"Checking validity of token {token}");
-            RevalidateToken(token, DefaultTimespan);
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Revalidates a token for a certain period.
-        /// </summary>
-        /// <param name="token">The token that is to be revalidated.</param>
-        /// <param name="validityPeriod">The period the token should be revalidated for</param>
-
-        private void RevalidateToken(string token, TimeSpan validityPeriod)
-        {
-            _logger.LogInformation($"Revalidating token {token} for {validityPeriod:g}");
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get the username for a supplied token.
-        /// </summary>
-        /// <param name="token">The token that was supplied in the request.</param>
-        /// <returns>The username of the user account this token currently belongs to.</returns>
-        /// <exception cref="KeyNotFoundException">The token was either not found or is invalid.</exception>
-        public string GetUsernameForToken(string token)
-        {
-            _logger.LogInformation($"Finding user for token {token}");
-            //TODO: check account, create Token, ...
-            throw new NotImplementedException();
-        }
-
         //Returns all the "categories" or media library names, we should maybe refactor that name
         public IEnumerable<String> GetSources()
         {
             _logger.LogTrace($"Getting all available categories");
             return _grabber.GetAvailableCategories();
         }
+
         //Returns all the available content pieces
         public IEnumerable<ContentInformation> GetMedia(string source)
         {
@@ -80,28 +45,36 @@ namespace API.Manager
 
         public StreamResponse GetStream(string streamId, int videoPreset, int audioPreset)
         {
-            _logger.LogInformation($"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
+            _logger.LogInformation(
+                $"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
             var streamResponse = _grabber.GetMediaStream(streamId);
             if (_transcoder.GetAvailableAudioPresets().All(item => item.PresetId != audioPreset))
             {
                 var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().PresetId;
-                _logger.LogWarning($"Replacing audioPreset {audioPreset} with {actualAudioPreset} because not found in transcoder");
+                _logger.LogWarning(
+                    $"Replacing audioPreset {audioPreset} with {actualAudioPreset} because not found in transcoder");
                 audioPreset = actualAudioPreset;
             }
+
             if (_transcoder.GetAvailableVideoPresets().All(item => item.PresetId != videoPreset))
             {
                 var actualVideoPreset = _transcoder.GetAvailableVideoPresets().First().PresetId;
-                _logger.LogWarning($"Replacing videoPreset {videoPreset} with {actualVideoPreset} because not found in transcoder");
+                _logger.LogWarning(
+                    $"Replacing videoPreset {videoPreset} with {actualVideoPreset} because not found in transcoder");
                 videoPreset = actualVideoPreset;
             }
+
             Uri ourUri = null;
 
             lock (TranscoderCache)
             {
-                var cacheObject = TranscoderCache.FirstOrDefault(item => item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetId == audioPreset && item.VideoPresetId == videoPreset);
+                var cacheObject = TranscoderCache.FirstOrDefault(item =>
+                    item.VideoSourceUri == streamResponse.Item1 && item.AudioPresetId == audioPreset &&
+                    item.VideoPresetId == videoPreset);
                 if (cacheObject != null)
                     ourUri = cacheObject.TranscodedVideoUri;
             }
+
             ourUri ??= _transcoder.StartProcess(streamResponse.Item1, videoPreset, audioPreset);
             return new StreamResponse()
             {
@@ -128,27 +101,25 @@ namespace API.Manager
         {
             lock (TranscoderCache)
             {
-                var cacheObject = TranscoderCache.FirstOrDefault(item => item.TranscodedVideoUri == request.TranscodedVideoUri &&
+                var cacheObject = TranscoderCache.FirstOrDefault(item =>
+                    item.TranscodedVideoUri == request.TranscodedVideoUri &&
                     item.AudioPresetId == request.AudioPreset &&
                     item.VideoPresetId == request.VideoPreset);
                 if (cacheObject != null)
                 {
                     cacheObject.KeepAliveTimeStamp = DateTime.Now;
                 }
+
                 //TODO: Response to Client? Keepalive Invalid, Video stopped to transcode
             }
-
         }
 
         private Task CheckTranscodingCache()
         {
-
             Task checkCache = new Task(async () =>
             {
-
                 while (true)
                 {
-
                     //Locked for operations
                     lock (TranscoderCache)
                     {
@@ -163,21 +134,25 @@ namespace API.Manager
                         {
                             if ((DateTime.Now - video.KeepAliveTimeStamp) > TimeSpan.FromMinutes(1))
                             {
-                                _logger.LogInformation($"Keepalive for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} expired");
+                                _logger.LogInformation(
+                                    $"Keepalive for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} expired");
                                 //Deactivate Token to stop Process
                                 video.CancellationTokenSource.Cancel();
                             }
 
                             if (!video.CancellationTokenSource.IsCancellationRequested) continue;
                             //Delete Entry in real Cache
-                            _logger.LogInformation($"Process for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} removed from Cache");
+                            _logger.LogInformation(
+                                $"Process for Video {video.VideoSourceUri} with videoPreset {video.VideoPresetId} and audioPreset {video.AudioPresetId} removed from Cache");
                             TranscoderCache.Remove(video);
                             video.CancellationTokenSource.Dispose();
                         }
                     }
+
                     //Using Task.Delay instead of Thread.Sleep which is better for the Thread Pool
                     await Task.Delay(5000);
                 }
+
                 // ReSharper disable once FunctionNeverReturns
             });
             return checkCache;

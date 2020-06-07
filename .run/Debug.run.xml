@@ -13,6 +13,8 @@
         <option name="sourceFilePath" value="docker-compose.yaml" />
       </settings>
     </deployment>
-    <method v="2" />
+    <method v="2">
+      <option name="Build" default="false" projectName="API" projectPath="$PROJECT_DIR$/API/API.csproj" />
+    </method>
   </configuration>
 </component>

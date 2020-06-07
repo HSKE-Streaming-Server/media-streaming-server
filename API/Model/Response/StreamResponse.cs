@@ -1,7 +1,8 @@
 using System;
 using System.Text.Json.Serialization;
+using API.Model.Request;
 
-namespace API.Model.Request
+namespace API.Model.Response
 {
     public struct StreamResponse
     {
