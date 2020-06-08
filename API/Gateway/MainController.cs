@@ -119,5 +119,13 @@ namespace API.Gateway
             return Ok();
             //Todo adjust return
         }
+        
+        [HttpPost("detail")]
+        public ActionResult<ContentInformation> GetDetail(DetailRequest request)
+        {
+            _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
+            _authHandler.CheckToken(request.Token);
+            return _serverManager.GetDetail(request);
+        }
     }
 }

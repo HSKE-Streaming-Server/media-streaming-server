@@ -30,5 +30,12 @@ namespace MediaInput
         /// <param name="contentId">The unique content identifier.</param>
         /// <returns>The URI where the multimedia content is located and whether or not the stream is a tuner sourced stream.</returns>
         public Tuple<Uri, bool> GetMediaStream(string contentId);
+
+        /// <summary>
+        /// Gets the detailed ContentInformation object regarding a single contentId.
+        /// </summary>
+        /// <param name="contentId">The content ID in question.</param>
+        /// <returns>A ContentInformation object.</returns>
+        ContentInformation GetDetail(string contentId);
     }
 }

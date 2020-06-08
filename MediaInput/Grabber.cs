@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -14,18 +15,19 @@ namespace MediaInput
     {
         private IConfiguration Config { get; }
         private string SqlConnectionString { get; }
-        private ILogger<Grabber> _logger;
+        private readonly ILogger<Grabber> _logger;
+
         public Grabber(ILogger<Grabber> logger)
         {
             _logger = logger;
-            
+
             Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
 
             SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
-                $"Database={Config["MySqlServerDatabase"]};" +
-                $"Uid={Config["MySqlServerUser"]};" +
-                $"Pwd={Config["MySqlServerPassword"]};";
-            
+                                  $"Database={Config["MySqlServerDatabase"]};" +
+                                  $"Uid={Config["MySqlServerUser"]};" +
+                                  $"Pwd={Config["MySqlServerPassword"]};";
+
             _logger.LogInformation($"{nameof(Grabber)} initialized");
         }
 
@@ -57,7 +59,7 @@ namespace MediaInput
                 var rowCollection = dataset.Tables[0].Rows;
                 _logger.LogTrace($"Found {rowCollection.Count} categories");
                 return (from DataRow entry in rowCollection
-                        select (string)entry[0]);
+                    select (string) entry[0]);
             }
         }
 
@@ -68,20 +70,23 @@ namespace MediaInput
 
         public IEnumerable<ContentInformation> GetAvailableContentInformation(string category)
         {
-
             using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
-                var selectCommand = new MySqlCommand($"SELECT * FROM mediacontent WHERE Category=@category", dbConnection);
+                var selectCommand =
+                    new MySqlCommand("SELECT * FROM mediacontent WHERE Category=@category", dbConnection);
                 selectCommand.Parameters.AddWithValue("@category", category);
-                var adapter = new MySqlDataAdapter
-                { SelectCommand = selectCommand };
+                var adapter = new MySqlDataAdapter {SelectCommand = selectCommand};
                 var dataset = new DataSet();
 
                 adapter.Fill(dataset);
 
                 var rowCollection = dataset.Tables[0].Rows;
 
-                return (from DataRow entry in rowCollection select new ContentInformation((string)entry[0], (string)entry[1], (string)entry[2], Convert.ToBoolean(entry[3]), Convert.ToBoolean(entry[4]), entry[5]!=DBNull.Value ?new Uri((string)entry[5]):null, new Uri((string)entry[6]))).ToList();
+                return (from DataRow entry in rowCollection
+                    select new ContentInformation((string) entry[0],
+                        (string) entry[1], (string) entry[2], Convert.ToBoolean(entry[3]),
+                        Convert.ToBoolean(entry[4]), entry[5] != DBNull.Value ? new Uri((string) entry[5]) : null,
+                        new Uri((string) entry[6]))).ToList();
             }
         }
 
@@ -90,9 +95,26 @@ namespace MediaInput
             //TODO: MySQL Query where ID = "..."
             var content = GetAvailableContentInformation().Values.SelectMany(item => item);
             var requestedContent = content.FirstOrDefault(item => item.Id == contentId);
-            if(requestedContent==null)
+            if (requestedContent == null)
                 throw new ApiNotFoundException("Content with specified contentId does not exist in database");
             return new Tuple<Uri, bool>(requestedContent.ContentLocation, requestedContent.TunerIsSource);
+        }
+
+        public ContentInformation GetDetail(string contentId)
+        {
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
+            {
+                var selectCommand = new MySqlCommand("SELECT * FROM mediacontent WHERE ID=@id", dbConnection);
+                selectCommand.Parameters.AddWithValue("@id", contentId);
+                var adapter = new MySqlDataAdapter {SelectCommand = selectCommand};
+                var dataset = new DataSet();
+                adapter.Fill(dataset);
+                var rowCollection = dataset.Tables[0].Rows;
+                var row = rowCollection[0];
+                return new ContentInformation((string) row[0], (string) row[1], (string) row[2],
+                    Convert.ToBoolean(row[3]), Convert.ToBoolean(row[4]),
+                    row[5] != DBNull.Value ? new Uri((string) row[5]) : null, new Uri((string) row[6]));
+            }
         }
     }
 }
