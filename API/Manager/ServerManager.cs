@@ -162,5 +162,11 @@ namespace API.Manager
         {
             return _grabber.GetDetail(request.StreamId);
         }
+
+        public IEnumerable<String> GetMpdLink(string mpd)
+        {
+            _logger.LogTrace($"Getting the already transcoded MpdLink: {mpd}");
+            return _grabber.GetAlreadyTranscodedMpd(mpd);
+        }
     }
 }
