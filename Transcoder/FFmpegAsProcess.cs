@@ -8,14 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Data.Exceptions;
+using MySql.Data.MySqlClient;
 
 namespace Transcoder
 {
     public class FFmpegAsProcess : ITranscoder
     {
-        //TODO - Für transcodierte Videos Datenbankeinträge setzen (Referenz)
-        //TODO - Videos auf dem Server löschen (nach 3 Tagen) sonst läufts voll
-        //TODO - presets übergeben
         private readonly ILogger<FFmpegAsProcess> _logger;
         private readonly Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
         private readonly Dictionary<int, VideoPreset> _videoPresets = new Dictionary<int, VideoPreset>();
@@ -101,7 +99,7 @@ namespace Transcoder
                 _logger.LogError(exception, $"Failed to start FFmpeg process with parameters: {parameter} in {folderPath}");
                 throw new Exception("Internal FFmpeg Error");
             }
-                                 
+
             var outUri = $"https://{_config["hostname"]}/{folderName}/out.mpd";
             _logger.LogDebug($"Gracefully returning {outUri} for request for {uri} with VideoPreset {videoPreset} and AudioPreset {audioPreset}");
             var transcodedVideoUri = new Uri(outUri);
@@ -118,7 +116,26 @@ namespace Transcoder
             var folderPathExitCode = Path.Combine(folderPath, "transcoder.log");
             if (File.ReadAllText(folderPathExitCode).Contains("Process exited with code: 0"))
                 Directory.Move(folderPath, folderPathAlreadyTranscodedReuse);
-            
+
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
+            {
+                try
+                {
+                    var selectCommand = new MySqlCommand($"INSERT INTO alreadytranscodedmpd (MpdLink) VALUES (@mpd)");
+
+                    if (selectCommand.ExecuteNonQuery() == 1)
+                        _logger.LogDebug($"Data Inserted");
+                    else
+                        _logger.LogError($"Failed: Data Not Inserted");
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message);
+                }
+
+            }
+
+
             return transcodedVideoUri;
         }
 
