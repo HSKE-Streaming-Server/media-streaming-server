@@ -25,6 +25,7 @@ namespace MediaInput
 
             SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
                                   $"Database={Config["MySqlServerDatabase"]};" +
+                                  $"Database={Config["MySqlServerDatabase2"]};" +
                                   $"Uid={Config["MySqlServerUser"]};" +
                                   $"Pwd={Config["MySqlServerPassword"]};";
 
