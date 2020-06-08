@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using API.Model;
 using MySql.Data.MySqlClient;
 using Data.Exceptions;
@@ -66,7 +67,7 @@ namespace API.Login
                         throw ex;
                     }
 
-                    var newToken = Guid.NewGuid().ToString();
+                    var newToken = GenerateBase64Token();
                     _tokenDictionary.Add(newToken, new AuthTokenInformation(account.Username));
                     dbConnection.Close();
                     return newToken;
@@ -77,6 +78,14 @@ namespace API.Login
                 _logger.LogError(mySqlException, "Failed to fill dataset from MySQL database for login.");
                 throw;
             }
+        }
+
+        private static string GenerateBase64Token()
+        {
+            using var csp = new RNGCryptoServiceProvider();
+            var randomData = new byte[32];
+            csp.GetBytes(randomData);
+            return Convert.ToBase64String(randomData);
         }
 
         /// <summary>
