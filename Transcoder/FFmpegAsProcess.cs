@@ -150,7 +150,6 @@ namespace Transcoder
                 TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
             }
 
-            //##### BEGIN #####
             //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
             var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
             var folderPathAlreadyTranscodedReuse = Path.Combine(_webroot, folderNameAlreadyTranscodedReuse);
@@ -168,7 +167,7 @@ namespace Transcoder
                     var insertCommand = new MySqlCommand(insertQuery, dbConnection);
 
                     insertCommand.Parameters.AddWithValue("@MpdLink", uri);
-                    insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPath);
+                    insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPathAlreadyTranscodedReuse);
                     insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset);
                     insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset);
 
@@ -182,7 +181,6 @@ namespace Transcoder
                     _logger.LogError(exception.Message);
                 }
             }
-            //##### END #####
 
             return transcodedVideoUri;
         }
