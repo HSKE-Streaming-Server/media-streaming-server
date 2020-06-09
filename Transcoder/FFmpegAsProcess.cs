@@ -103,13 +103,9 @@ namespace Transcoder
                         videoPreset.ToString().Equals(reader.GetString("VideoPreset")) &&
                         audioPreset.ToString().Equals(reader.GetString("AudioPreset")))
                     {
-                        //TODO - return MpdPathServer
-                        var adapter = new MySqlDataAdapter
-                        {
-                            SelectCommand = selectCommand
-                        };
-                        var dataSet = new DataSet();
-                        adapter.Fill(dataSet);
+                        var outServerUri = reader.GetString("MpdPathServer");
+                        var alreadyTranscodedVideoUri = new Uri(outServerUri);
+                        return alreadyTranscodedVideoUri;
                     }
                 }
                 catch (Exception exception)
@@ -117,6 +113,7 @@ namespace Transcoder
                     _logger.LogError(exception.Message);
                 }
             }
+            //If record does not exist in the database the directory will be created and ProcessFFmpeg will be called
 
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
