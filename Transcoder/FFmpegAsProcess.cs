@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Data.Exceptions;
 using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace Transcoder
 {
     public class FFmpegAsProcess : ITranscoder
     {
+        private IConfiguration ConfigDB { get; }
+        private string SqlConnectionString { get; }
         private readonly ILogger<FFmpegAsProcess> _logger;
         private readonly Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
         private readonly Dictionary<int, VideoPreset> _videoPresets = new Dictionary<int, VideoPreset>();
@@ -28,8 +31,14 @@ namespace Transcoder
             //Read config file
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
             _webroot = Path.Combine(_config["ApacheWebroot"]);
-            //Presets
 
+            ConfigDB = new ConfigurationBuilder().AddJsonFile("../MediaInput/GrabberConfig.json", false, true).Build();
+            SqlConnectionString = $"Server={ConfigDB["MySqlServerAddress"]};" +
+                                  $"Database={ConfigDB["MySqlServerDatabase"]};" +
+                                  $"Database={ConfigDB["MySqlServerDatabase2"]};" +
+                                  $"Uid={ConfigDB["MySqlServerUser"]};" +
+                                  $"Pwd={ConfigDB["MySqlServerPassword"]};";
+            //Presets
             var audioPresets = _config.GetChildren().First(item => item.Key == "AudioPresets").GetChildren();
             var videoPresets = _config.GetChildren().First(item => item.Key == "VideoPresets").GetChildren();
 
@@ -76,6 +85,39 @@ namespace Transcoder
                 throw new ApiBadRequestException("Uri cannot be null or empty.");
             }
 
+            //Check if MpdLink && VideoPreset && AudioPreset already exists, then return MpdPath Server.
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
+            {
+                try
+                {
+                    var selectQuery = "SELECT * FROM alreadytranscodedmpd.alreadytranscodedmpd WHERE MpdLink=@MpdLink AND VideoPreset=@VideoPreset AND AudioPreset=@AudioPreset";
+                    var selectCommand = new MySqlCommand(selectQuery, dbConnection);
+                    {
+                        selectCommand.Parameters.Add(new MySqlParameter("@MpdLink", uri));
+                        selectCommand.Parameters.Add(new MySqlParameter("@VideoPreset", videoPreset));
+                        selectCommand.Parameters.Add(new MySqlParameter("@AudioPreset", audioPreset));
+                    }
+                    //Read in the SELECT results
+                    MySqlDataReader reader = selectCommand.ExecuteReader();
+                    if (uri.ToString().Equals(reader.GetString("MpdLink")) &&
+                        videoPreset.ToString().Equals(reader.GetString("VideoPreset")) &&
+                        audioPreset.ToString().Equals(reader.GetString("AudioPreset")))
+                    {
+                        //TODO - return MpdPathServer
+                        var adapter = new MySqlDataAdapter
+                        {
+                            SelectCommand = selectCommand
+                        };
+                        var dataSet = new DataSet();
+                        adapter.Fill(dataSet);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message);
+                }
+            }
+
             var timestamp = DateTime.Now;
             //2020-05-05-12:56:32
             var folderName = Path.Combine("transcoded", timestamp.ToString("yyyy-MM-dd-HH-mm-ss"));
@@ -108,6 +150,7 @@ namespace Transcoder
                 TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
             }
 
+            //##### BEGIN #####
             //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
             var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
             var folderPathAlreadyTranscodedReuse = Path.Combine(_webroot, folderNameAlreadyTranscodedReuse);
@@ -121,9 +164,15 @@ namespace Transcoder
             {
                 try
                 {
-                    var selectCommand = new MySqlCommand($"INSERT INTO alreadytranscodedmpd (MpdLink) VALUES (@mpd)");
+                    var insertQuery = "INSERT INTO alreadytranscodedmpd.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
+                    var insertCommand = new MySqlCommand(insertQuery, dbConnection);
 
-                    if (selectCommand.ExecuteNonQuery() == 1)
+                    insertCommand.Parameters.AddWithValue("@MpdLink", uri);
+                    insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPath);
+                    insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset);
+                    insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset);
+
+                    if (insertCommand.ExecuteNonQuery() == 1)
                         _logger.LogDebug($"Data Inserted");
                     else
                         _logger.LogError($"Failed: Data Not Inserted");
@@ -132,9 +181,8 @@ namespace Transcoder
                 {
                     _logger.LogError(exception.Message);
                 }
-
             }
-
+            //##### END #####
 
             return transcodedVideoUri;
         }
