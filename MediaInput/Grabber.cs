@@ -117,28 +117,5 @@ namespace MediaInput
                     row[5] != DBNull.Value ? new Uri((string)row[5]) : null, new Uri((string)row[6]));
             }
         }
-
-        public IEnumerable<string> GetAlreadyTranscodedMpd(string mpd)
-        {
-
-            using (var dbConnection = new MySqlConnection(SqlConnectionString))
-            {
-                var selectCommand =
-                    new MySqlCommand($"SELECT * FROM alreadytranscodedmpd WHERE MpdLink=@mpd", dbConnection);
-                selectCommand.Parameters.AddWithValue("@mpd", mpd);
-                var adapter = new MySqlDataAdapter
-                {
-                    SelectCommand = selectCommand
-                };
-                var dataset = new DataSet();
-
-                adapter.Fill(dataset);
-
-                var rowCollection = dataset.Tables[0].Rows;
-
-                return (from DataRow entry in rowCollection
-                        select (string)entry[0]);
-            }
-        }
     }
 }

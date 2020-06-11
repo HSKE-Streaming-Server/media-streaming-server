@@ -37,12 +37,5 @@ namespace MediaInput
         /// <param name="contentId">The content ID in question.</param>
         /// <returns>A ContentInformation object.</returns>
         ContentInformation GetDetail(string contentId);
-
-        /// <summary>
-        /// Gets the already transcoded .mpd path that is located on the server.
-        /// </summary>
-        /// <param name="mpd"></param>
-        /// <returns></returns>
-        public IEnumerable<string> GetAlreadyTranscodedMpd(string mpd);
     }
 }
