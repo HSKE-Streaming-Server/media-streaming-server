@@ -150,32 +150,40 @@ namespace Transcoder
             //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
             var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
             var folderPathAlreadyTranscodedReuse = Path.Combine(_webroot, folderNameAlreadyTranscodedReuse);
-            Directory.CreateDirectory(folderPathAlreadyTranscodedReuse);
             //If processing finished correctly only then move to "AlreadyTranscodedReuse"
             var folderPathExitCode = Path.Combine(folderPath, "transcoder.log");
             if (File.ReadAllText(folderPathExitCode).Contains("Process exited with code: 0"))
-                Directory.Move(folderPath, folderPathAlreadyTranscodedReuse);
-
-            using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
-                try
+                //Create all of the directories
+                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                    Directory.CreateDirectory(folderNameAlreadyTranscodedReuse);
+                //Copy all the files
+                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
                 {
-                    var insertQuery = "INSERT INTO alreadytranscodedmpd.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
-                    var insertCommand = new MySqlCommand(insertQuery, dbConnection);
-
-                    insertCommand.Parameters.AddWithValue("@MpdLink", uri);
-                    insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPathAlreadyTranscodedReuse);
-                    insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset);
-                    insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset);
-
-                    if (insertCommand.ExecuteNonQuery() == 1)
-                        _logger.LogDebug($"Data Inserted");
-                    else
-                        _logger.LogError($"Failed: Data Not Inserted");
+                    File.Copy(folderPath, folderPathAlreadyTranscodedReuse, true);
                 }
-                catch (Exception exception)
+
+                using (var dbConnection = new MySqlConnection(SqlConnectionString))
                 {
-                    _logger.LogError(exception.Message);
+                    try
+                    {
+                        var insertQuery = "INSERT INTO alreadytranscodedmpd.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
+                        var insertCommand = new MySqlCommand(insertQuery, dbConnection);
+
+                        insertCommand.Parameters.AddWithValue("@MpdLink", uri);
+                        insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPathAlreadyTranscodedReuse);
+                        insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset);
+                        insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset);
+
+                        if (insertCommand.ExecuteNonQuery() == 1)
+                            _logger.LogDebug($"Data Inserted");
+                        else
+                            _logger.LogError($"Failed: Data Not Inserted");
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogError(exception.Message);
+                    }
                 }
             }
 
