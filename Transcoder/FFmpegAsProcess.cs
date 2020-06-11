@@ -32,7 +32,7 @@ namespace Transcoder
             _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
             _webroot = Path.Combine(_config["ApacheWebroot"]);
 
-            ConfigDB = new ConfigurationBuilder().AddJsonFile("../MediaInput/GrabberConfig.json", false, true).Build();
+            ConfigDB = new ConfigurationBuilder().AddJsonFile("./MediaInput/GrabberConfig.json", false, true).Build();
             SqlConnectionString = $"Server={ConfigDB["MySqlServerAddress"]};" +
                                   $"Database={ConfigDB["MySqlServerDatabase"]};" +
                                   $"Database={ConfigDB["MySqlServerDatabase2"]};" +
