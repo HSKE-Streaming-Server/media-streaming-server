@@ -10,5 +10,5 @@
   "MySqlServerDatabase2": "alreadytranscodedmpd",
   "MySqlServerTableName": "mediacontent",
   "MySqlServerUser": "root",
-  "MySqlServerPassword": ""
+  "MySqlServerPassword": "rootpasswd"
 }
