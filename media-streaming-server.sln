@@ -12,9 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transcoder", "Transcoder\Transcoder.csproj", "{06A2027C-6192-4E8F-B476-3041905223F2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8ADECA5C-414F-46D8-BF21-0C21BCBE6943} = {8ADECA5C-414F-46D8-BF21-0C21BCBE6943}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transcoder.Test", "Transcoder.Test\Transcoder.Test.csproj", "{DA2CC821-668C-4E9E-BD47-A7D83C0BA75D}"
 EndProject
