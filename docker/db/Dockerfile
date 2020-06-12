@@ -10,6 +10,7 @@ RUN curl https://gist.githubusercontent.com/michaelpezke/bb0158dc9a95bb10d59b740
 
 FROM bitnami/mariadb
 ENV MYSQL_DATABASE=mediacontent
+ENV MYSQL_DATABASE=alreadytranscodedmpd
 ENV MARIADB_ROOT_PASSWORD=rootpasswd
 COPY --from=curl /curldata/*.sql /docker-entrypoint-initdb.d/
 EXPOSE 3306

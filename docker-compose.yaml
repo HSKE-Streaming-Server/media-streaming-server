@@ -23,6 +23,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpasswd
       MYSQL_DATABASE: mediacontent
+      MYSQL_DATABASE: alreadytranscodedmpd
     ports:
       - "3306:3306"
 
