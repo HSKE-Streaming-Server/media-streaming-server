@@ -1,4 +1,4 @@
-GITHUB_USER="niklasstich"
+GITHUB_USER=""
 GITHUB_TOKEN=""
 
 sudo apt update
