@@ -4,6 +4,8 @@
 *nlog
 
 docker/web/webroot/*
+docker/web/artifacts.json
+docker/web/dist.zip
 */.Dockerfile.swp*
 
 ### C/C++ Ignores
