@@ -1,5 +1,5 @@
 GITHUB_USER="niklasstich"
-GITHUB_TOKEN="d47a66ffde5feeacebb860c933d78f327120de5e"
+GITHUB_TOKEN=""
 
 sudo apt update
 sudo apt install -y curl jq unzip
