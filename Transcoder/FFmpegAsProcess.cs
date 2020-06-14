@@ -111,12 +111,13 @@ namespace Transcoder
                     {
                         reader.Read();
                         if (uri.ToString().Equals(reader.GetString("MpdLink")) &&
-                            videoPreset==reader.GetInt32("VideoPreset") &&
-                            audioPreset==reader.GetInt32("AudioPreset"))
+                            videoPreset == reader.GetInt32("VideoPreset") &&
+                            audioPreset == reader.GetInt32("AudioPreset"))
                         {
                             var outServerUri = reader.GetString("MpdPathServer");
                             var alreadyTranscodedVideoUri = new Uri(outServerUri);
-                            _logger.LogInformation($"Found transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
+                            _logger.LogInformation(
+                                $"Found transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
                             return alreadyTranscodedVideoUri;
                         }
                     }
@@ -127,7 +128,9 @@ namespace Transcoder
                     throw new Exception("Internal Database error.");
                 }
             }
-            _logger.LogInformation($"Didn't find transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
+
+            _logger.LogInformation(
+                $"Didn't find transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
             //If record does not exist in the database the directory will be created and ProcessFFmpeg will be called
 
             var timestamp = DateTime.Now;
@@ -262,59 +265,53 @@ namespace Transcoder
                 logfile.Dispose();
                 if (ffmpegProcess.HasExited && ffmpegProcess.ExitCode == 0)
                 {
-                    try
+                    //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
+                    //var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
+                    var timestampString = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
+                    var reuseStoreName = "alreadytranscodedreuse";
+                    var reuseStoreRoot = Path.Combine(_webroot, reuseStoreName);
+                    var reuseStoreSubfolder =
+                        Path.Combine(reuseStoreRoot, timestampString);
+                    //create the root directory for this store
+                    if (!Directory.Exists(reuseStoreRoot))
+                        Directory.CreateDirectory(reuseStoreRoot);
+                    //create subdirectory
+                    Directory.CreateDirectory(reuseStoreSubfolder);
+                    //get all files from the live transcode directory
+                    var files = new DirectoryInfo(path).GetFiles();
+                    foreach (var file in files)
                     {
-                        //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
-                        //var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
-                        var timestampString = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
-                        var reuseStoreName = "alreadytranscodedreuse";
-                        var reuseStoreRoot = Path.Combine(_webroot, reuseStoreName);
-                        var reuseStoreSubfolder =
-                            Path.Combine(reuseStoreRoot, timestampString);
-                        //create the root directory for this store
-                        if (!Directory.Exists(reuseStoreRoot))
-                            Directory.CreateDirectory(reuseStoreRoot);
-                        //create subdirectory
-                        Directory.CreateDirectory(reuseStoreSubfolder);
-                        //get all files from the live transcode directory
-                        var files = new DirectoryInfo(path).GetFiles();
-                        foreach (var file in files)
-                        {
-                            //get the new path for each file and copy it to the new folder
-                            var temppath = Path.Combine(reuseStoreSubfolder, file.Name);
-                            file.CopyTo(temppath);
-                        }
-
-                        var mpdUri = Path.Combine($"https://{_config["hostname"]}", reuseStoreName, timestampString,
-                            "out.mpd");
-
-                        using (var dbConnection = new MySqlConnection(SqlConnectionString))
-                        {
-                            dbConnection.Open();
-                            try
-                            {
-                                const string insertQuery =
-                                    "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset)";
-                                var insertCommand = new MySqlCommand(insertQuery, dbConnection);
-
-                                insertCommand.Parameters.AddWithValue("@MpdLink", uri);
-                                insertCommand.Parameters.AddWithValue("@MpdPathServer", mpdUri);
-                                insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset.PresetId);
-                                insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset.PresetId);
-
-                                if (insertCommand.ExecuteNonQuery() == 1)
-                                    _logger.LogInformation("Transcoded video for reuse inserted into database.");
-                                else
-                                    _logger.LogError("Failed to insert transcoded video information into database.");
-                            }
-                            catch (Exception exception)
-                            {
-                                _logger.LogError(exception.Message);
-                            }
-                        }
+                        //get the new path for each file and copy it to the new folder
+                        var temppath = Path.Combine(reuseStoreSubfolder, file.Name);
+                        file.CopyTo(temppath);
                     }
-                    catch (Exception ex)
+
+                    var mpdUri = Path.Combine($"https://{_config["hostname"]}", reuseStoreName, timestampString,
+                        "out.mpd");
+
+                    using (var dbConnection = new MySqlConnection(SqlConnectionString))
                     {
+                        dbConnection.Open();
+                        try
+                        {
+                            const string insertQuery =
+                                "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset)";
+                            var insertCommand = new MySqlCommand(insertQuery, dbConnection);
+
+                            insertCommand.Parameters.AddWithValue("@MpdLink", uri);
+                            insertCommand.Parameters.AddWithValue("@MpdPathServer", mpdUri);
+                            insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset.PresetId);
+                            insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset.PresetId);
+
+                            if (insertCommand.ExecuteNonQuery() == 1)
+                                _logger.LogInformation("Transcoded video for reuse inserted into database.");
+                            else
+                                _logger.LogError("Failed to insert transcoded video information into database.");
+                        }
+                        catch (Exception exception)
+                        {
+                            _logger.LogError(exception.Message);
+                        }
                     }
                 }
 
