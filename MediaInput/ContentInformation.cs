@@ -6,7 +6,7 @@ namespace MediaInput
     public class ContentInformation
     {
 
-        internal ContentInformation(string id, string name, string category, bool tuner, bool livestream, Uri image, Uri content)
+        internal ContentInformation(string id, string name, string category, bool tuner, bool livestream, Uri image, Uri content, string description = null)
         {
             Id = id;
             Name = name;
@@ -15,6 +15,7 @@ namespace MediaInput
             Livestream = livestream; 
             ImageLocation = image;
             ContentLocation = content;
+            Description = description;
         }
 
         public string Id { get; internal set; }
@@ -25,5 +26,6 @@ namespace MediaInput
         [JsonPropertyName("image")]
         public Uri ImageLocation { get; internal set; }
         internal Uri ContentLocation { get; set; }
+        public string Description { get; set; }
     }
 }

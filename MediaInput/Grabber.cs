@@ -83,10 +83,16 @@ namespace MediaInput
                 var rowCollection = dataset.Tables[0].Rows;
 
                 return (from DataRow entry in rowCollection
-                    select new ContentInformation((string) entry[0],
-                        (string) entry[1], (string) entry[2], Convert.ToBoolean(entry[3]),
-                        Convert.ToBoolean(entry[4]), entry[5] != DBNull.Value ? new Uri((string) entry[5]) : null,
-                        new Uri((string) entry[6]))).ToList();
+                    select new ContentInformation(
+                        (string) entry[0],
+                        (string) entry[1], 
+                        (string) entry[2], 
+                        Convert.ToBoolean(entry[3]),
+                        Convert.ToBoolean(entry[4]), 
+                        entry[5] != DBNull.Value ? new Uri((string) entry[5]) : null,
+                        new Uri((string) entry[6]),
+                        (string) entry[7]
+                        )).ToList();
             }
         }
 
@@ -111,9 +117,16 @@ namespace MediaInput
                 adapter.Fill(dataset);
                 var rowCollection = dataset.Tables[0].Rows;
                 var row = rowCollection[0];
-                return new ContentInformation((string) row[0], (string) row[1], (string) row[2],
-                    Convert.ToBoolean(row[3]), Convert.ToBoolean(row[4]),
-                    row[5] != DBNull.Value ? new Uri((string) row[5]) : null, new Uri((string) row[6]));
+                return new ContentInformation(
+                    (string) row[0], 
+                    (string) row[1], 
+                    (string) row[2],
+                    Convert.ToBoolean(row[3]), 
+                    Convert.ToBoolean(row[4]),
+                    row[5] != DBNull.Value ? new Uri((string) row[5]) : null, 
+                    new Uri((string) row[6]),
+                    (string) row[7]
+                    );
             }
         }
     }
