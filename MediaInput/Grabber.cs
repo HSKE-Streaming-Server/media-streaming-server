@@ -25,7 +25,6 @@ namespace MediaInput
 
             SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
                                   $"Database={Config["MySqlServerDatabase"]};" +
-                                  $"Database={Config["MySqlServerDatabase2"]};" +
                                   $"Uid={Config["MySqlServerUser"]};" +
                                   $"Pwd={Config["MySqlServerPassword"]};";
 
@@ -54,7 +53,7 @@ namespace MediaInput
                 catch (MySqlException mySqlException)
                 {
                     _logger.LogError(mySqlException, "Failed to fill dataset from MySQL database");
-                    throw new Exception("Internal DataBase Error.");
+                    throw new Exception("Internal Database Error.");
                 }
 
                 var rowCollection = dataset.Tables[0].Rows;

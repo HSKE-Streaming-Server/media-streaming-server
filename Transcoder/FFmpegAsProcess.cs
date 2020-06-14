@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Data.Exceptions;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Globalization;
 
 namespace Transcoder
 {
@@ -53,29 +54,35 @@ namespace Transcoder
             {
                 var values = preset.GetChildren().ToDictionary(item => item.Key, item => item.Value);
                 _videoPresets.Add(int.Parse(values["Id"]), new VideoPreset(int.Parse(values["Id"]), values["Name"],
-                    values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]), int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
+                    values["Description"], int.Parse(values["ResolutionX"]), int.Parse(values["ResolutionY"]),
+                    int.Parse(values["Bitrate"]), values["TranscoderArguments"]));
             }
-            _logger.LogInformation($"Transcoder found VideoPresets: {_videoPresets.Count()} AudioPresets: {_audioPresets.Count()}");
+
+            _logger.LogInformation(
+                $"Transcoder found VideoPresets: {_videoPresets.Count} AudioPresets: {_audioPresets.Count}");
 
             _logger.LogInformation($"{nameof(FFmpegAsProcess)} initialized");
-
         }
+
         public IList<TranscoderCachingObject> TranscoderCache { get; }
+
         public Uri StartProcess(Uri uri, int videoPreset, int audioPreset)
         {
-            _logger.LogInformation($"Starting transcode: Uri={uri},VideoPreset={videoPreset},AudioPreset={audioPreset}");
+            _logger.LogInformation(
+                $"Starting transcode: Uri={uri},VideoPreset={videoPreset},AudioPreset={audioPreset}");
             if (!_videoPresets.ContainsKey(videoPreset))
             {
-                _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
+                _logger.LogTrace(
+                    $"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ApiNotFoundException("The specified video preset doesn't exist.");
             }
 
             if (!_audioPresets.ContainsKey(audioPreset))
             {
-                _logger.LogTrace($"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
+                _logger.LogTrace(
+                    $"Throwing argument exception because {nameof(videoPreset)} is not contained in {nameof(_videoPresets)}");
                 throw new ApiNotFoundException("The specified audio preset doesn't exist.");
             }
-
 
 
             if (uri == null || string.IsNullOrWhiteSpace(uri.ToString()))
@@ -89,7 +96,9 @@ namespace Transcoder
             {
                 try
                 {
-                    var selectQuery = "SELECT * FROM mediacontent.alreadytranscodedmpd WHERE MpdLink=@MpdLink AND VideoPreset=@VideoPreset AND AudioPreset=@AudioPreset";
+                    dbConnection.Open();
+                    const string selectQuery =
+                        "SELECT * FROM alreadytranscodedmpd WHERE MpdLink=@MpdLink AND VideoPreset=@VideoPreset AND AudioPreset=@AudioPreset";
                     var selectCommand = new MySqlCommand(selectQuery, dbConnection);
                     {
                         selectCommand.Parameters.Add(new MySqlParameter("@MpdLink", uri));
@@ -98,20 +107,27 @@ namespace Transcoder
                     }
                     //Read in the SELECT results
                     MySqlDataReader reader = selectCommand.ExecuteReader();
-                    if (uri.ToString().Equals(reader.GetString("MpdLink")) &&
-                        videoPreset.ToString().Equals(reader.GetString("VideoPreset")) &&
-                        audioPreset.ToString().Equals(reader.GetString("AudioPreset")))
+                    if (reader.HasRows)
                     {
-                        var outServerUri = reader.GetString("MpdPathServer");
-                        var alreadyTranscodedVideoUri = new Uri(outServerUri);
-                        return alreadyTranscodedVideoUri;
+                        reader.Read();
+                        if (uri.ToString().Equals(reader.GetString("MpdLink")) &&
+                            videoPreset==reader.GetInt32("VideoPreset") &&
+                            audioPreset==reader.GetInt32("AudioPreset"))
+                        {
+                            var outServerUri = reader.GetString("MpdPathServer");
+                            var alreadyTranscodedVideoUri = new Uri(outServerUri);
+                            _logger.LogInformation($"Found transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
+                            return alreadyTranscodedVideoUri;
+                        }
                     }
                 }
-                catch (Exception exception)
+                catch (MySqlException exception)
                 {
                     _logger.LogError(exception.Message);
+                    throw new Exception("Internal Database error.");
                 }
             }
+            _logger.LogInformation($"Didn't find transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
             //If record does not exist in the database the directory will be created and ProcessFFmpeg will be called
 
             var timestamp = DateTime.Now;
@@ -129,62 +145,30 @@ namespace Transcoder
                 $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd";
             try
             {
-
-                ProcessFFmpeg(parameter, folderPath, cancellationTokenSource);
+                ProcessFFmpeg(parameter, folderPath, cancellationTokenSource, uri, selectedVideoPreset,
+                    selectedAudioPreset, timestamp);
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Failed to start FFmpeg process with parameters: {parameter} in {folderPath}");
+                _logger.LogError(exception,
+                    $"Failed to start FFmpeg process with parameters: {parameter} in {folderPath}");
                 throw new Exception("Internal FFmpeg Error");
             }
 
             var outUri = $"https://{_config["hostname"]}/{folderName}/out.mpd";
-            _logger.LogDebug($"Gracefully returning {outUri} for request for {uri} with VideoPreset {videoPreset} and AudioPreset {audioPreset}");
+            _logger.LogDebug(
+                $"Gracefully returning {outUri} for request for {uri} with VideoPreset {videoPreset} and AudioPreset {audioPreset}");
             var transcodedVideoUri = new Uri(outUri);
             lock (TranscoderCache)
             {
-                TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri, cancellationTokenSource));
+                TranscoderCache.Add(new TranscoderCachingObject(uri, audioPreset, videoPreset, transcodedVideoUri,
+                    cancellationTokenSource));
             }
 
-            //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
-            var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
-            var folderPathAlreadyTranscodedReuse = Path.Combine(_webroot, folderNameAlreadyTranscodedReuse);
+
             //If processing finished correctly only then move to "AlreadyTranscodedReuse"
             var folderPathExitCode = Path.Combine(folderPath, "transcoder.log");
-            if (File.ReadAllText(folderPathExitCode).Contains("Process exited with code: 0"))
-            {
-                //Create all of the directories
-                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
-                    Directory.CreateDirectory(folderNameAlreadyTranscodedReuse);
-                //Copy all the files
-                foreach (var newPath in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
-                {
-                    File.Copy(folderPath, folderPathAlreadyTranscodedReuse, true);
-                }
 
-                using (var dbConnection = new MySqlConnection(SqlConnectionString))
-                {
-                    try
-                    {
-                        var insertQuery = "INSERT INTO mediacontent.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
-                        var insertCommand = new MySqlCommand(insertQuery, dbConnection);
-
-                        insertCommand.Parameters.AddWithValue("@MpdLink", uri);
-                        insertCommand.Parameters.AddWithValue("@MpdPathServer", folderPathAlreadyTranscodedReuse);
-                        insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset);
-                        insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset);
-
-                        if (insertCommand.ExecuteNonQuery() == 1)
-                            _logger.LogDebug($"Data Inserted");
-                        else
-                            _logger.LogError($"Failed: Data Not Inserted");
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogError(exception.Message);
-                    }
-                }
-            }
 
             return transcodedVideoUri;
         }
@@ -206,7 +190,11 @@ namespace Transcoder
         /// <param name="parameter">Declare arguments and options.</param>
         /// <param name="path">The path in which the transcoded fragments shall be located.</param>
         /// <param name="cancellationTokenSource"></param>
-        private void ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource)
+        /// <param name="uri">The uri of the source material that is to be transcoded.</param>
+        /// <param name="videoPreset">The videoPreset that is actually used.</param>
+        /// <param name="audioPreset">The audioPreset that is actually used.</param>
+        private void ProcessFFmpeg(string parameter, string path, CancellationTokenSource cancellationTokenSource,
+            Uri uri, VideoPreset videoPreset, AudioPreset audioPreset, DateTime timestamp)
         {
             //TODO - Threads (Nuget Zeitstempel)
 
@@ -239,6 +227,13 @@ namespace Transcoder
                 logfile.WriteLine($"INVOKING FFMPEG WITH PARAMETERS: {parameter}");
                 while (!reader.EndOfStream)
                 {
+                    while (reader.Peek() != -1)
+                    {
+                        var line = reader.ReadLine();
+                        _logger.LogTrace($"PATH: {path}, LINE: {line}");
+                        logfile.WriteLine(line);
+                    }
+
                     try
                     {
                         if (cancellationTokenSource.Token.IsCancellationRequested)
@@ -253,27 +248,79 @@ namespace Transcoder
                         break;
                     }
 
-                    while (reader.Peek() != -1)
-                    {
-                        var line = reader.ReadLine();
-                        _logger.LogTrace($"PATH: {path}, LINE: {line}");
-                        logfile.WriteLine(line);
-                    }
                     logfile.Flush();
                     Thread.Sleep(250);
 
                     if (!ffmpegProcess.HasExited || !reader.EndOfStream) continue;
                     logfile.WriteLine("Process exited with code: " + ffmpegProcess.ExitCode);
-                    _logger.LogInformation($"FFmpeg process in directory {path} exited with code {ffmpegProcess.ExitCode}");
-                    ffmpegProcess.Dispose();
+                    _logger.LogInformation(
+                        $"FFmpeg process in directory {path} exited with code {ffmpegProcess.ExitCode}");
                     break;
                 }
+
                 logfile.Flush();
                 logfile.Dispose();
+                if (ffmpegProcess.HasExited && ffmpegProcess.ExitCode == 0)
+                {
+                    try
+                    {
+                        //Already transcoded manifest will be moved from "transcoded" to "AlreadyTranscodedReuse" and reused
+                        //var folderNameAlreadyTranscodedReuse = Path.Combine("AlreadyTranscodedReuse");
+                        var timestampString = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
+                        var reuseStoreName = "alreadytranscodedreuse";
+                        var reuseStoreRoot = Path.Combine(_webroot, reuseStoreName);
+                        var reuseStoreSubfolder =
+                            Path.Combine(reuseStoreRoot, timestampString);
+                        //create the root directory for this store
+                        if (!Directory.Exists(reuseStoreRoot))
+                            Directory.CreateDirectory(reuseStoreRoot);
+                        //create subdirectory
+                        Directory.CreateDirectory(reuseStoreSubfolder);
+                        //get all files from the live transcode directory
+                        var files = new DirectoryInfo(path).GetFiles();
+                        foreach (var file in files)
+                        {
+                            //get the new path for each file and copy it to the new folder
+                            var temppath = Path.Combine(reuseStoreSubfolder, file.Name);
+                            file.CopyTo(temppath);
+                        }
+
+                        var mpdUri = Path.Combine($"https://{_config["hostname"]}", reuseStoreName, timestampString,
+                            "out.mpd");
+
+                        using (var dbConnection = new MySqlConnection(SqlConnectionString))
+                        {
+                            dbConnection.Open();
+                            try
+                            {
+                                const string insertQuery =
+                                    "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset)";
+                                var insertCommand = new MySqlCommand(insertQuery, dbConnection);
+
+                                insertCommand.Parameters.AddWithValue("@MpdLink", uri);
+                                insertCommand.Parameters.AddWithValue("@MpdPathServer", mpdUri);
+                                insertCommand.Parameters.AddWithValue("@VideoPreset", videoPreset.PresetId);
+                                insertCommand.Parameters.AddWithValue("@AudioPreset", audioPreset.PresetId);
+
+                                if (insertCommand.ExecuteNonQuery() == 1)
+                                    _logger.LogInformation("Transcoded video for reuse inserted into database.");
+                                else
+                                    _logger.LogError("Failed to insert transcoded video information into database.");
+                            }
+                            catch (Exception exception)
+                            {
+                                _logger.LogError(exception.Message);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+
                 //Exception, if ffmpeg gets 404 response from input
                 if (!ffmpegProcess.HasExited)
                     _logger.LogInformation($"Closing running FFmpeg process in {path}");
-                ffmpegProcess.Close();
                 try
                 {
                     lock (TranscoderCache)
@@ -284,6 +331,9 @@ namespace Transcoder
                 catch (ObjectDisposedException)
                 {
                 }
+
+                ffmpegProcess.Close();
+                ffmpegProcess.Dispose();
             });
 
             try
@@ -305,6 +355,7 @@ namespace Transcoder
             {
                 Thread.Sleep(50);
             } while (!File.Exists(expectedFile));
+
             _logger.LogTrace($"Expected file found at {expectedFile}");
         }
     }
