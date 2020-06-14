@@ -23,14 +23,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpasswd
       MYSQL_DATABASE: mediacontent
-      MYSQL_DATABASE: alreadytranscodedmpd
-    ports:
-      - "3306:3306"
+#    ports:
+#      - "3306:3306"
 
   # API Server
   api:
     build: .
-    ports:
-      - "5000:5000"
+#    ports:
+#      - "5000:5000"
     volumes:
       - ./docker/web/webroot:/webroot
