@@ -7,8 +7,8 @@
 
   "MySqlServerAddress": "db",
   "MySqlServerDatabase": "mediacontent",
-  "MySqlServerDatabase2": "alreadytranscodedmpd",
   "MySqlServerTableName": "mediacontent",
+  "MySqlServerTableName2": "alreadytranscodedmpd",
   "MySqlServerUser": "root",
   "MySqlServerPassword": "rootpasswd"
 }

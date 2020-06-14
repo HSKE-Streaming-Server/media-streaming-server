@@ -35,7 +35,6 @@ namespace Transcoder
             ConfigDB = new ConfigurationBuilder().AddJsonFile("./GrabberConfig.json", false, true).Build();
             SqlConnectionString = $"Server={ConfigDB["MySqlServerAddress"]};" +
                                   $"Database={ConfigDB["MySqlServerDatabase"]};" +
-                                  $"Database={ConfigDB["MySqlServerDatabase2"]};" +
                                   $"Uid={ConfigDB["MySqlServerUser"]};" +
                                   $"Pwd={ConfigDB["MySqlServerPassword"]};";
             //Presets
@@ -90,7 +89,7 @@ namespace Transcoder
             {
                 try
                 {
-                    var selectQuery = "SELECT * FROM alreadytranscodedmpd.alreadytranscodedmpd WHERE MpdLink=@MpdLink AND VideoPreset=@VideoPreset AND AudioPreset=@AudioPreset";
+                    var selectQuery = "SELECT * FROM mediacontent.alreadytranscodedmpd WHERE MpdLink=@MpdLink AND VideoPreset=@VideoPreset AND AudioPreset=@AudioPreset";
                     var selectCommand = new MySqlCommand(selectQuery, dbConnection);
                     {
                         selectCommand.Parameters.Add(new MySqlParameter("@MpdLink", uri));
@@ -167,7 +166,7 @@ namespace Transcoder
                 {
                     try
                     {
-                        var insertQuery = "INSERT INTO alreadytranscodedmpd.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
+                        var insertQuery = "INSERT INTO mediacontent.alreadytranscodedmpd (MpdLink, VideoPreset, AudioPreset) VALUES (@MpdLink, @VideoPreset, @AudioPreset)";
                         var insertCommand = new MySqlCommand(insertQuery, dbConnection);
 
                         insertCommand.Parameters.AddWithValue("@MpdLink", uri);
