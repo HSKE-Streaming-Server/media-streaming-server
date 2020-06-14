@@ -116,6 +116,11 @@ namespace MediaInput
                 var dataset = new DataSet();
                 adapter.Fill(dataset);
                 var rowCollection = dataset.Tables[0].Rows;
+
+                if (rowCollection.Count == 0)
+                {
+                    throw new ApiNotFoundException("No media found for ContentID");
+                }
                 var row = rowCollection[0];
                 return new ContentInformation(
                     (string) row[0], 
