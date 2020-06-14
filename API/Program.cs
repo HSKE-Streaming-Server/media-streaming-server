@@ -1,4 +1,5 @@
 using System;
+using API.Utility;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ namespace API
             try
             {
                 logger.Debug("Initializing main");
+                
+                JobScheduler.Start();
                 var host = CreateHostBuilder(args).Build();
 
                 var config = host.Services.GetRequiredService<IConfiguration>();
@@ -37,6 +40,7 @@ namespace API
             finally
             {
                 NLog.LogManager.Shutdown();
+                JobScheduler.Shutdown();
             }
             
         }
