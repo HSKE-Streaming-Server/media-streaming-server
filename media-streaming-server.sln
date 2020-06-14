@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInput.Test", "MediaInput.Test\MediaInput.Test.csproj", "{657D99E9-2038-446D-B054-31C4C90487B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transcoder", "Transcoder\Transcoder.csproj", "{06A2027C-6192-4E8F-B476-3041905223F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transcoder", "Transcoder\Transcoder.csproj", "{06A2027C-6192-4E8F-B476-3041905223F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transcoder.Test", "Transcoder.Test\Transcoder.Test.csproj", "{DA2CC821-668C-4E9E-BD47-A7D83C0BA75D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transcoder.Test", "Transcoder.Test\Transcoder.Test.csproj", "{DA2CC821-668C-4E9E-BD47-A7D83C0BA75D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
