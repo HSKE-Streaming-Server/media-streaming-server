@@ -102,9 +102,7 @@ namespace API.Manager
             lock (TranscoderCache)
             {
                 var cacheObject = TranscoderCache.FirstOrDefault(item =>
-                    item.TranscodedVideoUri == request.TranscodedVideoUri &&
-                    item.AudioPresetId == request.AudioPreset &&
-                    item.VideoPresetId == request.VideoPreset);
+                    item.TranscodedVideoUri == request.TranscodedVideoUri);
                 if (cacheObject != null)
                 {
                     cacheObject.KeepAliveTimeStamp = DateTime.Now;
