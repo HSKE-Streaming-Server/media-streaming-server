@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Model.Request;
@@ -159,6 +160,26 @@ namespace API.Manager
         public ContentInformation GetDetail(DetailRequest request)
         {
             return _grabber.GetDetail(request.StreamId);
+        }
+
+        public void DeleteTranscodedFiles()
+        {
+            _logger.LogInformation("Checking for transcoded files to delete!");
+            IEnumerable<DirectoryInfo> directoryInfos = new DirectoryInfo("/webroot/transcoded").GetDirectories()
+                .Where(d =>  DateTime.Now.Subtract(d.CreationTime) > TimeSpan.FromHours(3));
+            foreach (var di in directoryInfos)
+            {
+                _logger.LogInformation("Deleting now directory: {}", di.Name);
+                foreach (FileInfo file in di.EnumerateFiles())
+                {
+                    file.Delete(); 
+                }
+                foreach (DirectoryInfo dir in di.EnumerateDirectories())
+                {
+                    dir.Delete(true); 
+                }
+                di.Delete();
+            }
         }
     }
 }
