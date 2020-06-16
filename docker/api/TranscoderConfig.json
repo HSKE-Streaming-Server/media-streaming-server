@@ -7,29 +7,22 @@
       "Id": "0",
       "Name": "Default",
       "Description": "Default Quality Audio",
-      "Bitrate": 96000,
-      "TranscoderArguments": "-c:a libopus"
+      "Bitrate": 128000,
+      "TranscoderArguments": "-c:a aac"
     },
     {
       "Id": "1",
       "Name": "Medium",
       "Description": "Medium Quality Audio",
       "Bitrate": 64000,
-      "TranscoderArguments": " -c:a libopus -b:a 64k "
+      "TranscoderArguments": " -c:a aac -b:a 64k "
     },
     {
       "Id": "2",
       "Name": "Low",
       "Description": "Low Quality Audio",
       "Bitrate": 32000,
-      "TranscoderArguments": "-c:a libopus -b:a 32k"
-    },
-    {
-      "Id": "3",
-      "Name": "Lowest",
-      "Description": "Lowest Quality Audio",
-      "Bitrate": 16000,
-      "TranscoderArguments": "-c:a libopus -b:a 16k"
+      "TranscoderArguments": "-c:a aac -b:a 32k"
     }
   ],
   "VideoPresets": 
