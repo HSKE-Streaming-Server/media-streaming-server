@@ -3,31 +3,97 @@
   "Hostname": "localhost",
   "AudioPresets": [
     {
+      "Id": "0",
+      "Name": "Default",
+      "Description": "Default Quality Audio",
+      "Bitrate": 96000,
+      "TranscoderArguments": "-c:a libopus"
+    },
+    {
       "Id": "1",
+      "Name": "Medium",
+      "Description": "Medium Quality Audio",
+      "Bitrate": 64000,
+      "TranscoderArguments": " -c:a libopus -b:a 64k "
+    },
+    {
+      "Id": "2",
       "Name": "Low",
-      "Description": "Low Quality AAC Audio",
+      "Description": "Low Quality Audio",
       "Bitrate": 32000,
-      "TranscoderArguments": "-c:a aac"
+      "TranscoderArguments": "-c:a libopus -b:a 32k"
+    },
+    {
+      "Id": "3",
+      "Name": "Lowest",
+      "Description": "Lowest Quality Audio",
+      "Bitrate": 16000,
+      "TranscoderArguments": "-c:a libopus -b:a 16k"
     }
   ],
   "VideoPresets": [
     {
       "Id": "0",
-      "Name": "Good",
-      "Description": "High Quality Video",
-      "ResolutionX": 1920,
-      "ResolutionY": 1080,
-      "Bitrate": 1000000,
-      "TranscoderArguments": "-c:v libx264 -b:v:0 800k -b:v:1 300k -s:v:1 320x170 -profile:v:1 baseline"
+      "Name": "Maximum Quality",
+      "Description": "Best Quality for < 435kbit/s",
+      "ResolutionX": 848,
+      "ResolutionY": 480,
+      "Bitrate": 435000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 38 -cpu-used 5 -r:v 24 -b:v 300k -maxrate 435k -bufsize 435k "
     },
     {
       "Id": "1",
-      "Name": "Low",
-      "Description": "Low Quality Video",
-      "ResolutionX": 720,
+      "Name": "Medium, Low FPS",
+      "Description": "Video has clearer pictures, but runs less smoothly. Good for Television News.",
+      "ResolutionX": 848,
       "ResolutionY": 480,
-      "Bitrate": 300000,
-      "TranscoderArguments": "-c:v libx265 -r:v 25 -s 720x480 -aspect 16:9 -crf 30 -maxrate 300k -bufsize 300k"
+      "Bitrate": 290000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 42 -cpu-used 5 -r:v 18 -b:v 200k -maxrate 290k -bufsize 290k"
+    },
+    {
+      "Id": "2",
+      "Name": "Medium, High FPS",
+      "Description": "Video runs smoothly, but has less detail. Good for Sports or Action Movies.",
+      "ResolutionX": 640,
+      "ResolutionY": 360,
+      "Bitrate": 290000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 36 -cpu-used 5 -r:v 24 -b:v 200k  -maxrate 290k -bufsize 290k"
+    },
+    {
+      "Id": "3",
+      "Name": "Low, Low FPS",
+      "Description": "Video has clearer pictures, but runs less smoothly. Good for Television News.",
+      "ResolutionX": 640,
+      "ResolutionY": 360,
+      "Bitrate": 145000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 40 -cpu-used 4 -r:v 18 -b:v 100k  -maxrate 145k -bufsize 145k"
+    },
+    {
+      "Id": "4",
+      "Name": "Low, High FPS",
+      "Description": "Video runs smoothly, but has less detail. Good for Sports or Action Movies.",
+      "ResolutionX": 426,
+      "ResolutionY": 240,
+      "Bitrate": 145000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 35 -cpu-used 5 -r:v 24 -b:v 100k -maxrate 145k -bufsize 145k"
+    },
+    {
+      "Id": "5",
+      "Name": "Minimum Quality",
+      "Description": "If all you have is < 100kbit/s",
+      "ResolutionX": 426,
+      "ResolutionY": 240,
+      "Bitrate": 100000,
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 40 -cpu-used 4 -r:v 18 -b:v 70k -maxrate 100k -bufsize 100k"
+    },
+    {
+      "Id": "6",
+      "Name": "Audio Only",
+      "Description": "Deactivates Video Completely",
+      "ResolutionX": 0,
+      "ResolutionY": 0,
+      "Bitrate": 0,
+      "TranscoderArguments": "-map 0:a"
     }
   ]
 }
