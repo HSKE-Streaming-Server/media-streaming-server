@@ -53,13 +53,13 @@ namespace MediaInput
                 catch (MySqlException mySqlException)
                 {
                     _logger.LogError(mySqlException, "Failed to fill dataset from MySQL database");
-                    throw new Exception("Internal DataBase Error.");
+                    throw new Exception("Internal Database Error.");
                 }
 
                 var rowCollection = dataset.Tables[0].Rows;
                 _logger.LogTrace($"Found {rowCollection.Count} categories");
                 return (from DataRow entry in rowCollection
-                    select (string) entry[0]);
+                        select (string)entry[0]);
             }
         }
 
@@ -75,7 +75,7 @@ namespace MediaInput
                 var selectCommand =
                     new MySqlCommand("SELECT * FROM mediacontent WHERE Category=@category", dbConnection);
                 selectCommand.Parameters.AddWithValue("@category", category);
-                var adapter = new MySqlDataAdapter {SelectCommand = selectCommand};
+                var adapter = new MySqlDataAdapter { SelectCommand = selectCommand };
                 var dataset = new DataSet();
 
                 adapter.Fill(dataset);
@@ -112,7 +112,7 @@ namespace MediaInput
             {
                 var selectCommand = new MySqlCommand("SELECT * FROM mediacontent WHERE ID=@id", dbConnection);
                 selectCommand.Parameters.AddWithValue("@id", contentId);
-                var adapter = new MySqlDataAdapter {SelectCommand = selectCommand};
+                var adapter = new MySqlDataAdapter { SelectCommand = selectCommand };
                 var dataset = new DataSet();
                 adapter.Fill(dataset);
                 var rowCollection = dataset.Tables[0].Rows;
