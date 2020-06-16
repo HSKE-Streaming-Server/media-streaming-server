@@ -186,6 +186,36 @@ namespace Transcoder
             return _audioPresets.Select(item => item.Value);
         }
 
+        public IEnumerable<Tuple<int, int>> GetAvailableVoDs(Uri requestStreamId)
+        {
+            using (var dbConnection = new MySqlConnection(SqlConnectionString))
+            {
+                dbConnection.Open();
+                try
+                {
+                    //TODO: Get table name from config
+                    var selectCommand =
+                        new MySqlCommand(
+                            "SELECT VideoPreset, AudioPreset FROM alreadytranscodedmpd WHERE MpdLink=@MpdLink",
+                            dbConnection);
+                    selectCommand.Parameters.AddWithValue("@MpdLink", requestStreamId.ToString());
+                    var reader = selectCommand.ExecuteReader();
+                    var returnvalue = new List<Tuple<int, int>>();
+                    while (reader.Read())
+                    {
+                        returnvalue.Add(new Tuple<int, int>(reader.GetInt32("VideoPreset"),
+                            reader.GetInt32("AudioPreset")));
+                    }
+                    return returnvalue;
+                }
+                catch (MySqlException ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw new Exception("Internal Database Error");
+                }
+            }
+        }
+
 
         /// <summary>
         /// Starts the FFmpeg as a process with the passed parameters.
@@ -294,6 +324,7 @@ namespace Transcoder
                         dbConnection.Open();
                         try
                         {
+                            //TODO: Get table name from config
                             const string insertQuery =
                                 "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset)";
                             var insertCommand = new MySqlCommand(insertQuery, dbConnection);
@@ -308,9 +339,10 @@ namespace Transcoder
                             else
                                 _logger.LogError("Failed to insert transcoded video information into database.");
                         }
-                        catch (Exception exception)
+                        catch (MySqlException exception)
                         {
                             _logger.LogError(exception.Message);
+                            throw new Exception("Internal Database Error");
                         }
                     }
                 }

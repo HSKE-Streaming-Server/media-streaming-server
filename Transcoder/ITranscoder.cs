@@ -32,6 +32,12 @@ namespace Transcoder
         /// </summary>
         /// <returns>A list of <c>AudioPreset</c> objects.</returns>
         public IEnumerable<AudioPreset> GetAvailableAudioPresets();
-        //Presetsinformationen an APIManager zurückgeben
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="requestStreamId"></param>
+        /// <returns></returns>
+        IEnumerable<Tuple<int, int>> GetAvailableVoDs(Uri requestStreamId);
     }
 }
