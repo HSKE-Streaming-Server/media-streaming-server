@@ -36,7 +36,7 @@ namespace API.Model.Response
         internal DetailResponse(ContentInformation baseObject,
             IEnumerable<Tuple<int,int>> existingTranscodes) : base(baseObject.Id, baseObject.Name,
             baseObject.Category, baseObject.TunerIsSource, baseObject.Livestream, baseObject.ImageLocation,
-            baseObject.ContentLocation)
+            baseObject.ContentLocation, baseObject.Description)
         {
             ExistingTranscodes = existingTranscodes.Select(item=>new PresetPair(item.Item1, item.Item2));
         }
