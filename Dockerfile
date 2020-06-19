@@ -16,17 +16,14 @@ RUN dotnet restore API/API.csproj
 COPY . ./
 RUN dotnet publish API/API.csproj -c Debug -o out 
 
-FROM alpine AS ffmpeg-env
-RUN apk add tar curl
-WORKDIR /ffmpeg
-RUN curl https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz -o ffmpeg.tar.xz
-RUN tar -xvf ffmpeg.tar.xz 
-
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+RUN apt-get update && apt-get -y install curl xz-utils
+WORKDIR /ffmpeg
+RUN curl https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz -o ffmpeg.tar.xz
+RUN tar -xvf ffmpeg.tar.xz --wildcards '*ffmpeg' -O > /usr/local/bin/ffmpeg
+RUN chmod +x /usr/local/bin/ffmpeg
 WORKDIR /app
-COPY --from=ffmpeg-env /ffmpeg/ffmpeg-git-20200607-amd64-static/ff* /usr/local/bin/
-COPY --from=ffmpeg-env /ffmpeg/ffmpeg-git-20200607-amd64-static/qt-faststart /usr/local/bin/qt-faststart
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000;http://[::]:5000
 # Copy compiled files from the build environment into this context
