@@ -188,8 +188,9 @@ namespace API.Manager
         {
             var start = new ProcessStartInfo()
             {
-                FileName = @"python",
-                Arguments = @"./Scripts/add_content_to_db.py",
+                FileName = @"C:\Users\Domi\AppData\Local\Programs\Python\Python38-32\python.exe",
+                //Arguments = @"./Scripts/add_content_to_db.py",
+                Arguments = @"C:\Users\Domi\PycharmProjects\ohnevenv\add_content_to_db.py",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
@@ -200,26 +201,38 @@ namespace API.Manager
             ExecutePythonScript(start);
 
 
-            var start = new ProcessStartInfo()
+            start = new ProcessStartInfo()
             {
-                FileName = @"python",
-                Arguments = @"./Scripts/add_content_to_db.py",
+                FileName = @"C:\Users\Domi\AppData\Local\Programs\Python\Python38-32\python.exe",
+                //Arguments = @"./Scripts/add_livestream_to_db.py",
+                Arguments = @"C:\Users\Domi\PycharmProjects\ohnevenv\add_livestream_to_db.py",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true
             };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+            //start = new ProcessStartInfo()
+            //{
+                //FileName = @"python",
+                //Arguments = @"./Scripts/remove_deprecated_urls.py",
+                //Arguments = @"C:\Users\Domi\PycharmProjects\ohnevenv\remove_deprecated_urls.py",
+                //UseShellExecute = false,
+                //CreateNoWindow = true,
+                //RedirectStandardError = true,
+                //RedirectStandardOutput = true
+            //};
+
+            //_logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            //ExecutePythonScript(start);
 
             //start.FileName = @"C:\Users\Domi\AppData\Local\Programs\Python\Python38-32\python.exe";
             //startAdd.FileName = @"python";
             //var script = @"./Scripts/add_content_to_db.py";
 
-
-
-
-            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
-
-            ExecutePythonScript(start);
 
 
         }
@@ -240,7 +253,7 @@ namespace API.Manager
 
                         line = ErrorReader.ReadLine();
                         if (line != null)
-                            _logger.LogError($"Python Error: {line}");
+                            _logger.LogError($"Python Error in : {processStartInfo.Arguments}: {line}");
                     }
                 }
             } catch (FileNotFoundException fnfEx)

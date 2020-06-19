@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+//using System.Threading;
 using API.Login;
 using API.ExceptionHandling;
 using API.Manager;
@@ -64,9 +65,9 @@ namespace API
                 endpoints.MapControllers();
             });
 
-            //BackgroundJob.Enqueue(()
+            BackgroundJob.Enqueue(() => serverManager.RunPythonScripts()); 
             RecurringJob.AddOrUpdate(() => serverManager.DeleteTranscodedFiles(), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => serverManager.RunPythonScripts(), Cron.Minutely);
+            RecurringJob.AddOrUpdate(() => serverManager.RunPythonScripts(), Cron.Daily);
         }
 
         //Modelvalidation builds automatic Error responses. That's why we customize here our own response, that all error responses are build up the same way.
