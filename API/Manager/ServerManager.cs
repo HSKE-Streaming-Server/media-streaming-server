@@ -158,7 +158,6 @@ namespace API.Manager
 
         public DetailResponse GetDetail(DetailRequest request)
         {
-            
             var contentInformation = _grabber.GetDetail(request.StreamId);
             var vodInformation = _transcoder.GetAvailableVoDs(contentInformation.ContentLocation);
             return new DetailResponse(contentInformation, vodInformation);

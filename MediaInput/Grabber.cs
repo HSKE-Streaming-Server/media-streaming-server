@@ -91,7 +91,7 @@ namespace MediaInput
                         Convert.ToBoolean(entry[4]), 
                         entry[5] != DBNull.Value ? new Uri((string) entry[5]) : null,
                         new Uri((string) entry[6]),
-                        (string) entry[7]
+                        entry[7] != DBNull.Value ? (string)entry[7] : null
                         )).ToList();
             }
         }
@@ -130,7 +130,7 @@ namespace MediaInput
                     Convert.ToBoolean(row[4]),
                     row[5] != DBNull.Value ? new Uri((string) row[5]) : null, 
                     new Uri((string) row[6]),
-                    (string) row[7]
+                    row[7] !=DBNull.Value ? (string) row[7] : null
                     );
             }
         }
