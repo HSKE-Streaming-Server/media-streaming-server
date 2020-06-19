@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using API.Model.Request;
 using API.Model.Response;
@@ -166,20 +168,86 @@ namespace API.Manager
         {
             _logger.LogInformation("Checking for transcoded files to delete!");
             IEnumerable<DirectoryInfo> directoryInfos = new DirectoryInfo("/webroot/transcoded").GetDirectories()
-                .Where(d =>  DateTime.Now.Subtract(d.CreationTime) > TimeSpan.FromHours(3));
+                .Where(d => DateTime.Now.Subtract(d.CreationTime) > TimeSpan.FromHours(3));
             foreach (var di in directoryInfos)
             {
                 _logger.LogInformation("Deleting now directory: {}", di.Name);
                 foreach (FileInfo file in di.EnumerateFiles())
                 {
-                    file.Delete(); 
+                    file.Delete();
                 }
                 foreach (DirectoryInfo dir in di.EnumerateDirectories())
                 {
-                    dir.Delete(true); 
+                    dir.Delete(true);
                 }
                 di.Delete();
             }
         }
+
+        public void RunPythonScripts()
+        {
+            var start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"./Scripts/add_content_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+
+            var start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"./Scripts/add_content_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            //start.FileName = @"C:\Users\Domi\AppData\Local\Programs\Python\Python38-32\python.exe";
+            //startAdd.FileName = @"python";
+            //var script = @"./Scripts/add_content_to_db.py";
+
+
+
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+
+            ExecutePythonScript(start);
+
+
+        }
+        private void ExecutePythonScript(ProcessStartInfo processStartInfo)
+        {
+            try
+            {
+                using (var process = Process.Start(processStartInfo))
+                {
+                    StreamReader OutputReader = process.StandardOutput;
+                    StreamReader ErrorReader = process.StandardError;
+
+                    while (!process.HasExited && OutputReader.Peek() != -1 && ErrorReader.Peek() != -1)
+                    {
+                        var line = OutputReader.ReadLine();
+                        if (line != null)
+                            _logger.LogTrace($"Python Add to DB: {line}");
+
+                        line = ErrorReader.ReadLine();
+                        if (line != null)
+                            _logger.LogError($"Python Error: {line}");
+                    }
+                }
+            } catch (FileNotFoundException fnfEx)
+            {
+                _logger.LogError($"No Python Executable found: {fnfEx}");
+            }
+        }
+
     }
 }
