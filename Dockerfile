@@ -18,8 +18,12 @@ RUN dotnet publish API/API.csproj -c Debug -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+RUN apt-get update && apt-get -y install curl xz-utils
+WORKDIR /ffmpeg
+RUN curl https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz -o ffmpeg.tar.xz
+RUN tar -xvf ffmpeg.tar.xz --wildcards '*ffmpeg' -O > /usr/local/bin/ffmpeg
+RUN chmod +x /usr/local/bin/ffmpeg
 WORKDIR /app
-RUN apt-get update && apt-get install -y ffmpeg
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000;http://[::]:5000
 # Copy compiled files from the build environment into this context
