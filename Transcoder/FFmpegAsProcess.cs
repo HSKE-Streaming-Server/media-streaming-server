@@ -115,10 +115,14 @@ namespace Transcoder
                             audioPreset == reader.GetInt32("AudioPreset"))
                         {
                             var outServerUri = reader.GetString("MpdPathServer");
+                            //Check if the video on the server still exist. When not, then transcode and database insertion
                             var alreadyTranscodedVideoUri = new Uri(outServerUri);
-                            _logger.LogInformation(
-                                $"Found transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
-                            return alreadyTranscodedVideoUri;
+                            if (Directory.Exists(outServerUri))
+                            {
+                                _logger.LogInformation(
+                                    $"Found transcoded video for {uri} with presets V:{videoPreset},A:{audioPreset}");
+                                return alreadyTranscodedVideoUri;
+                            }
                         }
                     }
                 }
@@ -326,7 +330,7 @@ namespace Transcoder
                         {
                             //TODO: Get table name from config
                             const string insertQuery =
-                                "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset)";
+                                "INSERT INTO alreadytranscodedmpd (MpdLink, MpdPathServer, VideoPreset, AudioPreset) VALUES (@MpdLink, @MpdPathServer, @VideoPreset, @AudioPreset) ON DUPLICATE KEY UPDATE MpdPathServer=@MpdPathServer";
                             var insertCommand = new MySqlCommand(insertQuery, dbConnection);
 
                             insertCommand.Parameters.AddWithValue("@MpdLink", uri);
