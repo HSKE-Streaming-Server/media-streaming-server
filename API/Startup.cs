@@ -64,7 +64,8 @@ namespace API
                 endpoints.MapControllers();
             });
 
-            BackgroundJob.Enqueue(() => serverManager.RunPythonScripts()); 
+            BackgroundJob.Enqueue(() => serverManager.RunPythonScripts());
+            BackgroundJob.Enqueue(() => serverManager.DeleteTranscodedFiles()); 
             RecurringJob.AddOrUpdate(() => serverManager.DeleteTranscodedFiles(), Cron.Hourly);
             RecurringJob.AddOrUpdate(() => serverManager.RunPythonScripts(), Cron.Daily);
         }
