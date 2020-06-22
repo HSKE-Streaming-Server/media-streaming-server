@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using API.Model.Request;
 using API.Model.Response;
+using Data.Exceptions;
 using MediaInput;
 using Microsoft.Extensions.Logging;
 using Transcoder;
@@ -16,6 +19,7 @@ namespace API.Manager
         private readonly IGrabber _grabber;
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
+        static readonly HttpClient client = new HttpClient();
 
 
         public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
@@ -49,6 +53,14 @@ namespace API.Manager
             _logger.LogInformation(
                 $"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
             var streamResponse = _grabber.GetMediaStream(streamId);
+            
+            //check if stream uri is available 
+            using var response = client.SendAsync(new HttpRequestMessage(HttpMethod.Head, streamResponse.Item1)).Result;
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogWarning("Requested stream uri is not available!");
+                throw new ApiBadRequestException("Stream not available!");
+            }
             if (_transcoder.GetAvailableAudioPresets().All(item => item.PresetId != audioPreset))
             {
                 var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().PresetId;
