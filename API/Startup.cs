@@ -63,8 +63,10 @@ namespace API
             {
                 endpoints.MapControllers();
             });
-            
+
+            BackgroundJob.Enqueue(() => serverManager.RunPythonScripts()); 
             RecurringJob.AddOrUpdate(() => serverManager.DeleteTranscodedFiles(), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => serverManager.RunPythonScripts(), Cron.Daily);
         }
 
         //Modelvalidation builds automatic Error responses. That's why we customize here our own response, that all error responses are build up the same way.

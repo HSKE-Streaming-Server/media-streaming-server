@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using API.Model.Request;
 using API.Model.Response;
@@ -195,5 +197,75 @@ namespace API.Manager
                 di.Delete();
             }
         }
+
+        public void RunPythonScripts()
+        {
+            var start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/add_content_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+
+            start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/add_livestream_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+            start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/remove_deprecated_urls.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+        }
+        private void ExecutePythonScript(ProcessStartInfo processStartInfo)
+        {
+            try
+            {
+                using (var process = Process.Start(processStartInfo))
+                {
+                    StreamReader OutputReader = process.StandardOutput;
+                    StreamReader ErrorReader = process.StandardError;
+
+                    while (!process.HasExited && OutputReader.Peek() != -1 && ErrorReader.Peek() != -1)
+                    {
+                        var line = OutputReader.ReadLine();
+                        if (line != null)
+                            _logger.LogTrace($"Python Add to DB: {line}");
+
+                        line = ErrorReader.ReadLine();
+                        if (line != null)
+                            _logger.LogWarning($"Python Warning/Error : {processStartInfo.Arguments}: {line}");
+                    }
+                }
+            } catch (FileNotFoundException fnfEx)
+            {
+                _logger.LogError($"No Python Executable found: {fnfEx}");
+            }
+        }
+
     }
 }
