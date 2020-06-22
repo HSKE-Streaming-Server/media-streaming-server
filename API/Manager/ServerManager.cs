@@ -169,9 +169,11 @@ namespace API.Manager
             return checkCache;
         }
 
-        public ContentInformation GetDetail(DetailRequest request)
+        public DetailResponse GetDetail(DetailRequest request)
         {
-            return _grabber.GetDetail(request.StreamId);
+            var contentInformation = _grabber.GetDetail(request.StreamId);
+            var vodInformation = _transcoder.GetAvailableVoDs(contentInformation.ContentLocation);
+            return new DetailResponse(contentInformation, vodInformation);
         }
 
         public void DeleteTranscodedFiles()

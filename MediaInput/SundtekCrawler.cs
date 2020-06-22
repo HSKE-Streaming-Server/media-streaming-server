@@ -60,7 +60,7 @@ namespace MediaInput
 
 
             var radioList = M3UParser.ParsePlaylist(radioPlaylist).Select
-            (item => new ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
+            (item => new  ContentInformation(item.contentUri.ToString().GetSha1HashAsHexString(),
                 item.channelName, "radio", true, true, new Uri(item.pictureUri), new Uri(item.contentUri)));
 
             var sdtvList = M3UParser.ParsePlaylist(freeSdtvPlaylist).Select

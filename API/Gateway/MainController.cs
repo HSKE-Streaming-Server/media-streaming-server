@@ -121,7 +121,7 @@ namespace API.Gateway
         }
         
         [HttpPost("detail")]
-        public ActionResult<ContentInformation> GetDetail(DetailRequest request)
+        public ActionResult<DetailResponse> GetDetail(DetailRequest request)
         {
             _logger.LogTrace($"{Request.HttpContext.Connection.RemoteIpAddress}: POST {Request.Host}{Request.Path}");
             _authHandler.CheckToken(request.Token);

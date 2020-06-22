@@ -4,9 +4,9 @@ namespace API.Model.Request
 {
     public struct StreamSettings{
 
-        [JsonPropertyName("video")]
+        [JsonPropertyName("videoPresetId")]
         public int VideoPresetId {get; set;}
-        [JsonPropertyName("audio")]
+        [JsonPropertyName("audioPresetId")]
         public int AudioPresetId {get; set;}
     }
 }
