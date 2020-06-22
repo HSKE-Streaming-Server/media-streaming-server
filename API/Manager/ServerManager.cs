@@ -186,15 +186,7 @@ namespace API.Manager
             foreach (var di in directoryInfos)
             {
                 _logger.LogInformation("Deleting now directory: {}", di.Name);
-                foreach (FileInfo file in di.EnumerateFiles())
-                {
-                    file.Delete(); 
-                }
-                foreach (DirectoryInfo dir in di.EnumerateDirectories())
-                {
-                    dir.Delete(true); 
-                }
-                di.Delete();
+                di.Delete(true);
             }
         }
 
