@@ -46,6 +46,10 @@ namespace API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        config.AddJsonFile("ApplicationConfiguration.json", false, false);
+                    });
                     webBuilder.ConfigureLogging(logging =>
                     {
                         logging.ClearProviders();

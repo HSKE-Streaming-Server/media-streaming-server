@@ -16,7 +16,7 @@ namespace Transcoder
 {
     public class FFmpegAsProcess : ITranscoder
     {
-        private IConfiguration ConfigDB { get; }
+        private IConfiguration ConfigDb { get; }
         private string SqlConnectionString { get; }
         private readonly ILogger<FFmpegAsProcess> _logger;
         private readonly Dictionary<int, AudioPreset> _audioPresets = new Dictionary<int, AudioPreset>();
@@ -24,20 +24,20 @@ namespace Transcoder
         private readonly IConfiguration _config;
         private readonly string _webroot;
 
-        public FFmpegAsProcess(ILogger<FFmpegAsProcess> logger)
+        public FFmpegAsProcess(ILogger<FFmpegAsProcess> logger, IConfiguration config)
         {
             _logger = logger;
             TranscoderCache = new List<TranscoderCachingObject>();
 
             //Read config file
-            _config = new ConfigurationBuilder().AddJsonFile("TranscoderConfig.json", false, false).Build();
+            _config = config;
             _webroot = Path.Combine(_config["ApacheWebroot"]);
 
-            ConfigDB = new ConfigurationBuilder().AddJsonFile("./GrabberConfig.json", false, true).Build();
-            SqlConnectionString = $"Server={ConfigDB["MySqlServerAddress"]};" +
-                                  $"Database={ConfigDB["MySqlServerDatabase"]};" +
-                                  $"Uid={ConfigDB["MySqlServerUser"]};" +
-                                  $"Pwd={ConfigDB["MySqlServerPassword"]};";
+            ConfigDb = config;
+            SqlConnectionString = $"Server={ConfigDb["MySqlServerAddress"]};" +
+                                  $"Database={ConfigDb["MySqlServerDatabase"]};" +
+                                  $"Uid={ConfigDb["MySqlServerUser"]};" +
+                                  $"Pwd={ConfigDb["MySqlServerPassword"]};";
             //Presets
             var audioPresets = _config.GetChildren().First(item => item.Key == "AudioPresets").GetChildren();
             var videoPresets = _config.GetChildren().First(item => item.Key == "VideoPresets").GetChildren();

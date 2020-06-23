@@ -13,20 +13,23 @@ namespace MediaInput
     //TODO: Figure out a mutex scheme together with the keepalive module of the API so we never try to open another tuner stream when we already have one running
     public class Grabber : IGrabber
     {
-        private IConfiguration Config { get; }
+        //private IConfiguration Config { get; }
         private string SqlConnectionString { get; }
         private readonly ILogger<Grabber> _logger;
+        private readonly string _tableName;
 
-        public Grabber(ILogger<Grabber> logger)
+        public Grabber(ILogger<Grabber> logger, IConfiguration config)
         {
             _logger = logger;
 
-            Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
+            //Config = new ConfigurationBuilder().AddJsonFile("GrabberConfig.json", false, true).Build();
 
-            SqlConnectionString = $"Server={Config["MySqlServerAddress"]};" +
-                                  $"Database={Config["MySqlServerDatabase"]};" +
-                                  $"Uid={Config["MySqlServerUser"]};" +
-                                  $"Pwd={Config["MySqlServerPassword"]};";
+            SqlConnectionString = $"Server={config["MySqlServerAddress"]};" +
+                                  $"Database={config["MySqlServerDatabase"]};" +
+                                  $"Uid={config["MySqlServerUser"]};" +
+                                  $"Pwd={config["MySqlServerPassword"]};";
+            _tableName = config["MediaContentTableName"];
+            
 
             _logger.LogInformation($"{nameof(Grabber)} initialized");
         }
@@ -39,7 +42,7 @@ namespace MediaInput
         {
             using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
-                var selectCommand = new MySqlCommand($"SELECT DISTINCT Category FROM mediacontent", dbConnection);
+                var selectCommand = new MySqlCommand($"SELECT DISTINCT Category FROM {_tableName}", dbConnection);
                 var adapter = new MySqlDataAdapter
                 {
                     SelectCommand = selectCommand
@@ -73,7 +76,7 @@ namespace MediaInput
             using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
                 var selectCommand =
-                    new MySqlCommand("SELECT * FROM mediacontent WHERE Category=@category", dbConnection);
+                    new MySqlCommand($"SELECT * FROM {_tableName} WHERE Category=@category", dbConnection);
                 selectCommand.Parameters.AddWithValue("@category", category);
                 var adapter = new MySqlDataAdapter { SelectCommand = selectCommand };
                 var dataset = new DataSet();
@@ -110,7 +113,7 @@ namespace MediaInput
         {
             using (var dbConnection = new MySqlConnection(SqlConnectionString))
             {
-                var selectCommand = new MySqlCommand("SELECT * FROM mediacontent WHERE ID=@id", dbConnection);
+                var selectCommand = new MySqlCommand($"SELECT * FROM {_tableName} WHERE ID=@id", dbConnection);
                 selectCommand.Parameters.AddWithValue("@id", contentId);
                 var adapter = new MySqlDataAdapter { SelectCommand = selectCommand };
                 var dataset = new DataSet();

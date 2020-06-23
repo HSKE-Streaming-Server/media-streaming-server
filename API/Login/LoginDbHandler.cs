@@ -11,15 +11,15 @@ namespace API.Login
 {
     public class LoginDbHandler
     {
-        public LoginDbHandler(ILogger<LoginDbHandler> logger)
+        public LoginDbHandler(ILogger<LoginDbHandler> logger, IConfiguration config)
         {
             _logger = logger;
-            IConfiguration config = new ConfigurationBuilder().AddJsonFile("LoginConfig.json", false, true).Build();
             _defaultTimeSpan = TimeSpan.FromMinutes(int.Parse(config["TokenLifespan"]));
             _sqlConnectionString = $"Server={config["MySqlServerAddress"]};" +
                                    $"Database={config["MySqlServerDatabase"]};" +
                                    $"Uid={config["MySqlServerUser"]};" +
                                    $"Pwd={config["MySqlServerPassword"]};";
+            _sqlTableName = config["LoginTableName"];
             _tokenDictionary = new Dictionary<string, AuthTokenInformation>();
         }
 
@@ -29,6 +29,7 @@ namespace API.Login
 
         private readonly ILogger<LoginDbHandler> _logger;
         private readonly string _sqlConnectionString;
+        private readonly string _sqlTableName;
 
         /// <summary>
         /// Logs in a user by creating a new token for them if the credentials are valid.
@@ -52,7 +53,7 @@ namespace API.Login
                     dbConnection.Open();
                     var selectCommand =
                         new MySqlCommand(
-                            $"SELECT 1 FROM login WHERE BENUTZERNAME =@username AND PASSWORT =@password",
+                            $"SELECT 1 FROM {_sqlTableName} WHERE BENUTZERNAME=@username AND PASSWORT=@password",
                             dbConnection);
                     //selectCommand.Prepare();
                     selectCommand.Parameters.AddWithValue("@username", account.Username);
