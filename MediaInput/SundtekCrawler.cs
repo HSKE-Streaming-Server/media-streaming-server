@@ -18,16 +18,13 @@ namespace MediaInput
 
         private static SundtekCrawler _singleton;
 
-        private SundtekCrawler(HttpClient client)
+        public SundtekCrawler(HttpClient client, IConfiguration config)
         {
             _client = client;
-            _config = new ConfigurationBuilder().AddJsonFile("SundtekConfig.json", false, true).Build();
+            _config = config;
         }
 
-        public static SundtekCrawler GetSingleton(HttpClient client)
-        {
-            return _singleton ??= new SundtekCrawler(client);
-        }
+        
 
         /// <summary>
         /// Starts crawling task for this crawler with the specified interval.

@@ -1,5 +1,24 @@
-﻿{
-  "ApacheWebroot": "C:\\xampp\\htdocs",
+{
+  "RunningInDocker": "true",
+  
+  "MySqlServerAddress": "db",
+  "MySqlServerDatabase": "mediacontent",
+  "MySqlServerUser": "root",
+  "MySqlServerPassword": "rootpasswd",
+
+  "LoginTableName": "login",
+  "MediaContentTableName": "mediacontent",
+  "TranscodeCacheTableName": "alreadytranscoded",
+
+  "TokenLifespan": "120",
+  
+  "EnableSundtek": "false",
+  "SundtekServerAddress": "localhost",
+  "SundtekServerPort": "22000",
+  "SundtekRadioUri": "/radio.m3u",
+  "SundtekSdtvUri": "/freesdtv.m3u",
+  "SundtekHdtvUri": "/freehdtv.m3u",
+  "ApacheWebroot": "/webroot/",
   "Hostname": "localhost",
   "AudioPresets": [
     {

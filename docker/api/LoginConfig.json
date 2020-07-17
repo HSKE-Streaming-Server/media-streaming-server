@@ -1,8 +1,0 @@
-﻿{
-  "MySqlServerAddress" : "db",
-  "MySqlServerDatabase" : "mediacontent",
-  "MySqlServerTableName" : "login",
-  "MySqlServerUser" : "root",
-  "MySqlServerPassword" : "rootpasswd",
-  "TokenLifespan": "120"
-}

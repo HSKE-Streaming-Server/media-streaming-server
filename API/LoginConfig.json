@@ -1,8 +1,0 @@
-﻿{
-  "MySqlServerAddress": "localhost",
-  "MySqlServerDatabase": "mediacontent",
-  "MySqlServerTableName": "login",
-  "MySqlServerUser": "root",
-  "MySqlServerPassword": "ap8Vj9=%8+].+pEahVDK",
-  "TokenLifespan": "120"
-}

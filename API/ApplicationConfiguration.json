@@ -1,8 +1,26 @@
-﻿{
-  "ApacheWebroot": "/webroot/",
+{
+  "RunningInDocker": "true",
+  
+  "MySqlServerAddress": "localhost",
+  "MySqlServerDatabase": "mediacontent",
+  "MySqlServerUser": "root",
+  "MySqlServerPassword": "ap8Vj9=%8+].+pEahVDK",
+
+  "LoginTableName": "login",
+  "MediaContentTableName": "mediacontent",
+  "TranscodeCacheTableName": "alreadytranscoded",
+
+  "TokenLifespan": "120",
+  
+  "EnableSundtek": "false",
+  "SundtekServerAddress": "localhost",
+  "SundtekServerPort": "22000",
+  "SundtekRadioUri": "/radio.m3u",
+  "SundtekSdtvUri": "/freesdtv.m3u",
+  "SundtekHdtvUri": "/freehdtv.m3u",
+  "ApacheWebroot": "C:\\xampp\\htdocs",
   "Hostname": "localhost",
-  "AudioPresets":
-  [
+  "AudioPresets": [
     {
       "Id": "0",
       "Name": "Default",
@@ -25,8 +43,7 @@
       "TranscoderArguments": "-c:a aac -b:a 32k"
     }
   ],
-  "VideoPresets": 
-  [
+  "VideoPresets": [
     {
       "Id": "0",
       "Name": "Maximum Quality",
@@ -34,8 +51,7 @@
       "ResolutionX": 848,
       "ResolutionY": 480,
       "Bitrate": 435000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 38 -cpu-used 5 -r:v 24 -b:v 300k -maxrate 435k -bufsize 435k "
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 38 -cpu-used 5 -r:v 24 -b:v 300k -maxrate 435k -bufsize 435k "
     },
     {
       "Id": "1",
@@ -44,9 +60,8 @@
       "ResolutionX": 848,
       "ResolutionY": 480,
       "Bitrate": 290000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 42 -cpu-used 5 -r:v 18 -b:v 200k -maxrate 290k -bufsize 290k"
-    },    
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 848x480 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 42 -cpu-used 5 -r:v 18 -b:v 200k -maxrate 290k -bufsize 290k"
+    },
     {
       "Id": "2",
       "Name": "Medium, High FPS",
@@ -54,9 +69,8 @@
       "ResolutionX": 640,
       "ResolutionY": 360,
       "Bitrate": 290000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 36 -cpu-used 5 -r:v 24 -b:v 200k  -maxrate 290k -bufsize 290k"
-    },    
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 36 -cpu-used 5 -r:v 24 -b:v 200k  -maxrate 290k -bufsize 290k"
+    },
     {
       "Id": "3",
       "Name": "Low, Low FPS",
@@ -64,9 +78,8 @@
       "ResolutionX": 640,
       "ResolutionY": 360,
       "Bitrate": 145000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 40 -cpu-used 4 -r:v 18 -b:v 100k  -maxrate 145k -bufsize 145k"
-    },    
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 640x360 -aspect 16:9 -quality realtime -tile-columns 1 -row-mt 1 -frame-parallel 1 -threads 4 -crf 40 -cpu-used 4 -r:v 18 -b:v 100k  -maxrate 145k -bufsize 145k"
+    },
     {
       "Id": "4",
       "Name": "Low, High FPS",
@@ -74,9 +87,8 @@
       "ResolutionX": 426,
       "ResolutionY": 240,
       "Bitrate": 145000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 35 -cpu-used 5 -r:v 24 -b:v 100k -maxrate 145k -bufsize 145k"
-    },    
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 35 -cpu-used 5 -r:v 24 -b:v 100k -maxrate 145k -bufsize 145k"
+    },
     {
       "Id": "5",
       "Name": "Minimum Quality",
@@ -84,9 +96,8 @@
       "ResolutionX": 426,
       "ResolutionY": 240,
       "Bitrate": 100000,
-      "TranscoderArguments": 
-      "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 40 -cpu-used 4 -r:v 18 -b:v 70k -maxrate 100k -bufsize 100k"
-    },    
+      "TranscoderArguments": "-c:v libvpx-vp9 -pix_fmt yuv420p -s 426x240 -aspect 16:9 -quality realtime -tile-columns 0 -row-mt 1 -frame-parallel 1 -threads 2 -crf 40 -cpu-used 4 -r:v 18 -b:v 70k -maxrate 100k -bufsize 100k"
+    },
     {
       "Id": "6",
       "Name": "Audio Only",
