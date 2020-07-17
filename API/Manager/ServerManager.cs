@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using API.Model.Request;
 using API.Model.Response;
+using Data.Exceptions;
 using MediaInput;
 using Microsoft.Extensions.Logging;
 using Transcoder;
@@ -15,6 +21,7 @@ namespace API.Manager
         private readonly IGrabber _grabber;
         private readonly ITranscoder _transcoder;
         private readonly ILogger<ServerManager> _logger;
+        static readonly HttpClient client = new HttpClient();
 
 
         public ServerManager(ILogger<ServerManager> logger, Grabber grabber, FFmpegAsProcess transcoder)
@@ -48,6 +55,14 @@ namespace API.Manager
             _logger.LogInformation(
                 $"Getting stream for streamId {streamId} with videoPreset {videoPreset} and audioPreset {audioPreset}");
             var streamResponse = _grabber.GetMediaStream(streamId);
+            
+            //check if stream uri is available 
+            using var response = client.SendAsync(new HttpRequestMessage(HttpMethod.Head, streamResponse.Item1)).Result;
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogWarning("Requested stream uri is not available!");
+                throw new ApiBadRequestException("Stream not available!");
+            }
             if (_transcoder.GetAvailableAudioPresets().All(item => item.PresetId != audioPreset))
             {
                 var actualAudioPreset = _transcoder.GetAvailableAudioPresets().First().PresetId;
@@ -162,5 +177,87 @@ namespace API.Manager
             var vodInformation = _transcoder.GetAvailableVoDs(contentInformation.ContentLocation);
             return new DetailResponse(contentInformation, vodInformation);
         }
+
+        public void DeleteTranscodedFiles()
+        {
+            _logger.LogInformation("Checking for transcoded files to delete!");
+            IEnumerable<DirectoryInfo> directoryInfos = new DirectoryInfo("/webroot/transcoded").GetDirectories()
+                .Where(d =>  DateTime.Now.Subtract(d.CreationTime) > TimeSpan.FromHours(3));
+            foreach (var di in directoryInfos)
+            {
+                _logger.LogInformation("Deleting now directory: {}", di.Name);
+                di.Delete(true);
+            }
+        }
+
+        public void RunPythonScripts()
+        {
+            var start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/add_content_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+
+            start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/add_livestream_to_db.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+            start = new ProcessStartInfo()
+            {
+                FileName = @"python",
+                Arguments = @"../Data/Scripts/remove_deprecated_urls.py",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+
+            _logger.LogTrace($"Executing Python-Script: {start.Arguments}");
+            ExecutePythonScript(start);
+
+        }
+        private void ExecutePythonScript(ProcessStartInfo processStartInfo)
+        {
+            try
+            {
+                using (var process = Process.Start(processStartInfo))
+                {
+                    StreamReader OutputReader = process.StandardOutput;
+                    StreamReader ErrorReader = process.StandardError;
+
+                    while (!process.HasExited && OutputReader.Peek() != -1 && ErrorReader.Peek() != -1)
+                    {
+                        var line = OutputReader.ReadLine();
+                        if (line != null)
+                            _logger.LogTrace($"Python Add to DB: {line}");
+
+                        line = ErrorReader.ReadLine();
+                        if (line != null)
+                            _logger.LogWarning($"Python Warning/Error : {processStartInfo.Arguments}: {line}");
+                    }
+                }
+            } catch (FileNotFoundException fnfEx)
+            {
+                _logger.LogError($"No Python Executable found: {fnfEx}");
+            }
+        }
+
     }
 }

@@ -149,7 +149,7 @@ namespace Transcoder
             var cancellationTokenSource = new CancellationTokenSource();
 
             var parameter =
-                $"-i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd";
+                $"-headers \"User-Agent: 'Mozilla'\" -i \"{uri}\" {selectedVideoPreset.TranscoderArguments} {selectedAudioPreset.TranscoderArguments} -f dash {folderPath}/out.mpd";
             try
             {
                 ProcessFFmpeg(parameter, folderPath, cancellationTokenSource, uri, selectedVideoPreset,
@@ -351,22 +351,32 @@ namespace Transcoder
                     }
                 }
 
-                //Exception, if ffmpeg gets 404 response from input
-                if (!ffmpegProcess.HasExited)
-                    _logger.LogInformation($"Closing running FFmpeg process in {path}");
                 try
                 {
+                    if (!ffmpegProcess.HasExited)
+                        _logger.LogInformation($"Closing running FFmpeg process in {path}");
+
                     lock (TranscoderCache)
                     {
                         cancellationTokenSource.Cancel();
                     }
-                }
-                catch (ObjectDisposedException)
-                {
-                }
 
-                ffmpegProcess.Close();
-                ffmpegProcess.Dispose();
+                    if (ffmpegProcess.ExitCode != 0)
+                    {
+                        _logger.LogError("FFmpeg failed with exit code: {}", ffmpegProcess.ExitCode);
+                        throw new Exception("FFmpeg proccess failed!");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message);
+                    throw new Exception("Cancel of cancellationtoken failed!");
+                }
+                finally
+                {
+                    ffmpegProcess.Close();
+                    ffmpegProcess.Dispose(); 
+                }
             });
 
             try

@@ -17,6 +17,7 @@ namespace API
             try
             {
                 logger.Debug("Initializing main");
+
                 var host = CreateHostBuilder(args).Build();
 
                 var config = host.Services.GetRequiredService<IConfiguration>();

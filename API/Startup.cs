@@ -1,7 +1,10 @@
+using System;
 using System.Linq;
 using API.Login;
 using API.ExceptionHandling;
 using API.Manager;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using MediaInput;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,10 +35,16 @@ namespace API
             services.AddSingleton<FFmpegAsProcess>();
             services.AddSingleton<Grabber>();
             services.AddSingleton<LoginDbHandler>();
+
+            //add hangfire to schedule background tasks
+            services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseMemoryStorage());
+            services.AddHangfireServer();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ServerManager serverManager)
         {
             if (env.IsDevelopment())
             {
@@ -54,6 +63,11 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+
+            BackgroundJob.Enqueue(() => serverManager.RunPythonScripts());
+            BackgroundJob.Enqueue(() => serverManager.DeleteTranscodedFiles()); 
+            RecurringJob.AddOrUpdate(() => serverManager.DeleteTranscodedFiles(), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => serverManager.RunPythonScripts(), Cron.Daily);
         }
 
         //Modelvalidation builds automatic Error responses. That's why we customize here our own response, that all error responses are build up the same way.
